@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Havi</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_logout">Logout</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">No Task Description</string>
+    <string name="task_name">Task Name</string>
+</resources>

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "936630451290",
+    "firebase_url": "https://havi-f2da7.firebaseio.com",
+    "project_id": "havi-f2da7",
+    "storage_bucket": "havi-f2da7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936630451290:android:b824ef57ed3ac0ef",
+        "android_client_info": {
+          "package_name": "com.punbook.mayankgupta.havi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "936630451290-n80fmtd36ojh6atoa0nmu0sr7efha5r4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.punbook.mayankgupta.havi",
+            "certificate_hash": "d3a4e22eada36152055eb035c2b54a93dfa50a25"
+          }
+        },
+        {
+          "client_id": "936630451290-s5cv5pbp2rkr73h03r9emdpvbcc6lbo5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHKmxD0BP6ltQLWk4sVudU9pJLlV-2k7w"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "936630451290-s5cv5pbp2rkr73h03r9emdpvbcc6lbo5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
