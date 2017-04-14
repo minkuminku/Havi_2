@@ -10,6 +10,7 @@ public enum Status {
 
     ACTIVE,
     EXPIRED,
+    PAID,
     SUBMITTED;
 
     public static Status parse(String temp){
@@ -23,6 +24,7 @@ public enum Status {
             case "active" : return ACTIVE;
             case "expired" : return EXPIRED;
             case "submitted" : return SUBMITTED;
+            case "paid" : return PAID;
             default: return ACTIVE;
         }
 

@@ -38,6 +38,7 @@ public class TaskFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private static final String ARG_PARAM3 = "param3";
     private static final String ARG_PARAM4 = "param4";
+    private static final String ARG_PARAM5 = "param5";
 
     private static int counter = 0;
 
@@ -46,6 +47,7 @@ public class TaskFragment extends Fragment {
     private String mParam2;
     private String mParam3;
     private String mParam4;
+    private String mParam5;
 
     private OnFragmentInteractionListener mListener;
 
@@ -62,13 +64,14 @@ public class TaskFragment extends Fragment {
      * @return A new instance of fragment TaskFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static TaskFragment newInstance(String param1, String param2, String param3, String param4) {
+    public static TaskFragment newInstance(String param1, String param2, String param3, String param4, String param5) {
         TaskFragment fragment = new TaskFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
         args.putString(ARG_PARAM3, param3);
         args.putString(ARG_PARAM4, param4);
+        args.putString(ARG_PARAM5, param5);
 
         fragment.setArguments(args);
         return fragment;
@@ -84,6 +87,7 @@ public class TaskFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
             mParam3 = getArguments().getString(ARG_PARAM3);
             mParam4 = getArguments().getString(ARG_PARAM4);
+            mParam5 = getArguments().getString(ARG_PARAM5);
         }
 
     }
@@ -124,12 +128,12 @@ if(Status.parse(mParam1)==Status.ACTIVE){
             public void onClick(View v) {
                 TextView textView1 =(TextView) view.findViewById(R.id.task_comments);
                 String comments =  textView1.getText().toString();
-                Toast.makeText(getContext(),"CLICKED",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),"submiting " + mParam3,Toast.LENGTH_SHORT).show();
                 Map<String, Object> childUpdates = new HashMap<>();
-                childUpdates.put(SEPERATOR + mParam3 + SEPERATOR + Task.STATUS_KEY, Status.SUBMITTED);
-                childUpdates.put(SEPERATOR + mParam3 + SEPERATOR + Task.COMMENTS_KEY, comments);
+                childUpdates.put(  SEPERATOR + mParam3 + SEPERATOR + Task.STATUS_KEY, Status.SUBMITTED);
+                childUpdates.put( SEPERATOR + mParam3 + SEPERATOR + Task.COMMENTS_KEY, comments);
                //TODO : add correct path for updating db
-                // FirebaseDatabase.getInstance().getReference().child("users/user1").updateChildren(childUpdates);
+                FirebaseDatabase.getInstance().getReference().child(mParam5).updateChildren(childUpdates);
                 submitButton.setEnabled(false);
 
             }

@@ -61,7 +61,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 }
             }
 
-            FirebaseDatabase.getInstance().getReference().child("users").push().setValue(task);
+            //FirebaseDatabase.getInstance().getReference().child("users").push().setValue(task);
         }
 
 

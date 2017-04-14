@@ -5,22 +5,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
-import com.facebook.appevents.internal.Constants;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,17 +28,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.punbook.mayankgupta.havi.dummy.DummyContent;
 import com.punbook.mayankgupta.havi.dummy.Status;
 import com.punbook.mayankgupta.havi.dummy.Task;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -55,16 +52,19 @@ public class MainActivity extends AppCompatActivity
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mMessagesDatabaseReference;
     private DatabaseReference mUserDatabaseReference;
-    private DatabaseReference mTaskDatabaseReference;
-    private ChildEventListener mTaskEventListener;
+    private DatabaseReference mUserTaskDatabaseReference;
+    private DatabaseReference mTasksDatabaseReference;
+    private ValueEventListener mOneTimeTaskListner;
+    private ValueEventListener mTaskEventListener;
     private ChildEventListener mChildEventListener2;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     private String uniqueUserId;
 
-    private List<Task> tasks = new ArrayList<>();
+    private final List<Task> tasks = new ArrayList<>();
 
+    private String userTableTaskPath;
 
 
     @Override
@@ -72,15 +72,15 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
 
-
         // Initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         //mFirebaseStorage = FirebaseStorage.getInstance();
 
-       // mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("users");
+        // mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("users");
+        mTasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
 
-  //      mUserDatabaseReference = mFirebaseDatabase.getReference().child("users/user1");
+        //      mUserDatabaseReference = mFirebaseDatabase.getReference().child("users/user1");
 
 
         // [START handle_data_extras]
@@ -94,11 +94,14 @@ public class MainActivity extends AppCompatActivity
             for (String key : getIntent().getExtras().keySet()) {
                 Object value = getIntent().getExtras().get(key);
                 Log.d(TAG, "Key: " + key + " Value: " + value);
-                switch (key){
+                switch (key) {
 
-                    case "SUMMARY" :    task.setSummary(value.toString());
-                    task.setStartDate(6372637236l); task.setExpiryDate(62372637236l); task.setStatus(Status.parse("active"));
-                    //   mUserDatabaseReference.push().setValue(task);
+                    case "SUMMARY":
+                        task.setSummary(value.toString());
+                        task.setStartDate(6372637236l);
+                        task.setExpiryDate(62372637236l);
+                        task.setStatus(Status.parse("active"));
+                        //   mUserDatabaseReference.push().setValue(task);
                         break;
 
 
@@ -106,9 +109,7 @@ public class MainActivity extends AppCompatActivity
             }
 
 
-
         }
-
 
 
         setContentView(R.layout.activity_main);
@@ -140,15 +141,18 @@ public class MainActivity extends AppCompatActivity
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    Toast.makeText(getApplicationContext(),"Signed in in activity",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Signed in in activity", Toast.LENGTH_SHORT).show();
                     uniqueUserId = user.getUid();
 
-                    final String userTablePath = DB_ROOT+SEPERATOR+uniqueUserId;
-                    final String userTableTaskPath = DB_ROOT+SEPERATOR+uniqueUserId + SEPERATOR + TASKS;
+                    final String userTablePath = DB_ROOT + SEPERATOR + uniqueUserId;
+                    setUserTableTaskPath(DB_ROOT + SEPERATOR + uniqueUserId + SEPERATOR + TASKS);
                     mUserDatabaseReference = mFirebaseDatabase.getReference().child(userTablePath);
-                    mTaskDatabaseReference = mFirebaseDatabase.getReference().child(userTableTaskPath);
+                    mUserTaskDatabaseReference = mFirebaseDatabase.getReference().child(getUserTableTaskPath());
                     mUserDatabaseReference.child("username").setValue(user.getEmail());
-                   // mUserDatabaseReference.child("name").setValue(user.getEmail());
+
+                    mUserDatabaseReference.child("token").setValue(FirebaseInstanceId.getInstance().getToken());
+                    Log.d(TAG, " token: " + FirebaseInstanceId.getInstance().getToken());
+                    // mUserDatabaseReference.child("name").setValue(user.getEmail());
                     onSignedInInitialize(user.getDisplayName());
                 } else {
                     // User is signed out
@@ -184,23 +188,88 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public String getUserTableTaskPath() {
+        return userTableTaskPath;
+    }
+
+    public void setUserTableTaskPath(String userTableTaskPath) {
+        this.userTableTaskPath = userTableTaskPath;
+    }
+
     private void onSignedInInitialize(String username) {
-       // mUsername = username;
+        // mUsername = username;
         attachDatabaseReadListener();
     }
 
     private void onSignedOutCleanup() {
-       // mUsername = ANONYMOUS;
+        // mUsername = ANONYMOUS;
+        tasks.clear();
         DummyContent.ITEMS.clear();
         detachDatabaseReadListener();
     }
 
     private void attachDatabaseReadListener() {
         if (mTaskEventListener == null) {
-            mTaskEventListener = new ChildEventListener() {
+            mTaskEventListener = new ValueEventListener() {
+
                 private int counter = 1;
+
+
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+
+                    tasks.clear();
+
+                    if (dataSnapshot.hasChild(TASKS)) {  // if login for first time
+
+
+                        for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {  // iterate all keys in Users db
+
+                            if(dataSnapshot1.getKey().equals(TASKS)) {
+                                for(DataSnapshot dataSnapshot2 : dataSnapshot1.getChildren()) { // iterate all tasks
+                                    Task friendlyMessage = dataSnapshot2.getValue(Task.class);
+                                    friendlyMessage.setPostKey(dataSnapshot2.getKey());
+                                    friendlyMessage.setId("" + counter++);
+
+                                    System.out.println("friendlyMessage  = " + friendlyMessage);
+                                    //  DummyContent.DummyItem dummyItem = new DummyContent.DummyItem("" + DummyContent.ITEMS.size()+1,friendlyMessage.getStatus(),friendlyMessage.getSummary());
+                                    //  dummyItem.setPostKey(friendlyMessage.getId());
+
+                                    //DummyContent.ITEMS.add(dummyItem);
+                                    tasks.add(friendlyMessage);
+                                }
+                            }
+
+                        }
+
+                    } else {
+                        attachOneTimeTaskListener();
+                    }
+
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                    throw new IllegalArgumentException(" on cancelled, log only");
+
+                }
+            };
+
+           /* mTaskEventListener = new ChildEventListener() {
+                private int counter = 1;
+
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                    if (dataSnapshot.hasChildren()) {
+
+                        if(mTasksDatabaseReference!=null) {
+                            mTasksDatabaseReference = null;
+                        }
 
 
                         Task friendlyMessage = dataSnapshot.getValue(Task.class);
@@ -214,24 +283,58 @@ public class MainActivity extends AppCompatActivity
                         //DummyContent.ITEMS.add(dummyItem);
                         tasks.add(friendlyMessage);
 
+                    } else {
+                        attachOneTimeTaskListener();
+                    }
+
 
                 }
 
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-                public void onChildRemoved(DataSnapshot dataSnapshot) {}
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-                public void onCancelled(DatabaseError databaseError) {}
-            };
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                }
+
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
+
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            };*/
             //mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
-           //  mUserDatabaseReference.addChildEventListener(mTaskEventListener); // remove it
-             mTaskDatabaseReference.addChildEventListener(mTaskEventListener); // remove it
+              mUserDatabaseReference.addValueEventListener(mTaskEventListener); // remove it
+           // mUserTaskDatabaseReference.addValueEventListener(mTaskEventListener); // remove it
         }
+    }
+
+    private void attachOneTimeTaskListener(){
+
+        mTasksDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+
+                      Task welcomeTask = dataSnapshot1.getValue(Task.class);
+                      System.out.println("Welcome TASK $$$$$$$  -> " + welcomeTask);
+                      mUserTaskDatabaseReference.push().setValue(welcomeTask);
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void detachDatabaseReadListener() {
         if (mTaskEventListener != null) {
-           // mUserDatabaseReference.removeEventListener(mTaskEventListener);
-            mTaskDatabaseReference.removeEventListener(mTaskEventListener);
+             mUserDatabaseReference.removeEventListener(mTaskEventListener);
+           // mUserTaskDatabaseReference.removeEventListener(mTaskEventListener);
             mTaskEventListener = null;
         }
     }
@@ -242,7 +345,7 @@ public class MainActivity extends AppCompatActivity
         if (mAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
-        //mMessageAdapter.clear();
+        tasks.clear();
         DummyContent.ITEMS.clear();
         detachDatabaseReadListener();
     }
@@ -264,14 +367,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-   /* @Override
-    public void onBackPressed() {
-        if (getFragmentManager().getBackStackEntryCount() > 0) {
-            getFragmentManager().popBackStack();
-        } else {
-            super.onBackPressed();
-        }
-    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -302,19 +397,18 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-         if (id == R.id.nav_gallery) {
-            GalleryFragment galleryFragment = GalleryFragment.newInstance("jjjjjjjjjj","hhhhhhhshjswsjwswswss");
+        if (id == R.id.nav_gallery) {
+            GalleryFragment galleryFragment = GalleryFragment.newInstance("jjjjjjjjjj", "hhhhhhhshjswsjwswswss");
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-            Toast.makeText(this,galleryFragment.getTag(),Toast.LENGTH_SHORT).show();
-            Log.i("MYTAG","" +galleryFragment.getId());
-            Log.i("MYTAG","end" +galleryFragment.getTag());
+            Toast.makeText(this, galleryFragment.getTag(), Toast.LENGTH_SHORT).show();
+            Log.i("MYTAG", "" + galleryFragment.getId());
+            Log.i("MYTAG", "end" + galleryFragment.getTag());
 
-           fragmentTransaction.replace(R.id.content_main,galleryFragment,TAG);
-           fragmentTransaction.addToBackStack(null);
-                   fragmentTransaction.commit();
-
+            fragmentTransaction.replace(R.id.content_main, galleryFragment, TAG);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
 
 
         } else if (id == R.id.nav_manage) {
@@ -323,9 +417,9 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-            fragmentTransaction.replace(R.id.content_main,itemFragment,itemFragment.getTag());
-           // fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
+            fragmentTransaction.replace(R.id.content_main, itemFragment, itemFragment.getTag());
+            // fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
 
 
         } else if (id == R.id.nav_share) {
@@ -342,32 +436,24 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(Task item) {
-        Toast.makeText(this,item.getStatus().toString(),Toast.LENGTH_SHORT).show();
-       /* FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        GalleryFragment galleryFragment = (GalleryFragment) fragmentManager.findFragmentByTag(TAG);
-        fragmentTransaction.replace(R.id.content_main,galleryFragment);
-       // fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();*/
+        Toast.makeText(this, item.getStatus().toString(), Toast.LENGTH_SHORT).show();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        TaskFragment taskFragment = TaskFragment.newInstance(item.getStatus().toString(),item.getSummary(), item.getPostKey(), item.getComments());
-        fragmentTransaction.replace(R.id.content_main,taskFragment,"FRAG_TAG");
+        TaskFragment taskFragment = TaskFragment.newInstance(item.getStatus().toString(), item.getSummary(), item.getPostKey(), item.getComments(), getUserTableTaskPath());
+        fragmentTransaction.replace(R.id.content_main, taskFragment, "FRAG_TAG");
         // fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-
 
 
     }
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-        Toast.makeText(this,"TASK FRAGMENT CLICKED",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "TASK FRAGMENT CLICKED", Toast.LENGTH_SHORT).show();
     }
 
     //TODO : make DAO for handling database reference
-
 
 
 }
