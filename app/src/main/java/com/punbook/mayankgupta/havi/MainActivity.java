@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -65,7 +66,15 @@ public class MainActivity extends AppCompatActivity
     private final List<Task> tasks = new ArrayList<>();
 
     private String userTableTaskPath;
+    private String userTablePath;
 
+    public String getUserTablePath() {
+        return userTablePath;
+    }
+
+    public void setUserTablePath(String userTablePath) {
+        this.userTablePath = userTablePath;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +143,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         //attachDatabaseReadListener();
+        final TextView userName = (TextView) navigationView.getHeaderView(0).findViewById(R.id.userName);
+        final TextView userEmail = (TextView) navigationView.getHeaderView(0).findViewById(R.id.userEmail);
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -141,12 +152,20 @@ public class MainActivity extends AppCompatActivity
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
+
+                    userName.setText(user.getDisplayName());
+                    userEmail.setText(user.getEmail());
+
+
+                    System.out.println("user.getPhotoUrl() = " + user.getPhotoUrl());
+
+
                     Toast.makeText(getApplicationContext(), "Signed in in activity", Toast.LENGTH_SHORT).show();
                     uniqueUserId = user.getUid();
 
-                    final String userTablePath = DB_ROOT + SEPERATOR + uniqueUserId;
+                    setUserTablePath(DB_ROOT + SEPERATOR + uniqueUserId);
                     setUserTableTaskPath(DB_ROOT + SEPERATOR + uniqueUserId + SEPERATOR + TASKS);
-                    mUserDatabaseReference = mFirebaseDatabase.getReference().child(userTablePath);
+                    mUserDatabaseReference = mFirebaseDatabase.getReference().child(getUserTablePath());
                     mUserTaskDatabaseReference = mFirebaseDatabase.getReference().child(getUserTableTaskPath());
                     mUserDatabaseReference.child("username").setValue(user.getEmail());
 
@@ -169,6 +188,20 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
+
+
+        // this is to show default fragment at start of the App.
+        GalleryFragment galleryFragment = GalleryFragment.newInstance("jjjjjjjjjj", "hhhhhhhshjswsjwswswss");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        Toast.makeText(this, galleryFragment.getTag(), Toast.LENGTH_SHORT).show();
+        Log.i("MYTAG", "" + galleryFragment.getId());
+        Log.i("MYTAG", "end" + galleryFragment.getTag());
+
+        fragmentTransaction.replace(R.id.content_main, galleryFragment, TAG);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
 
 
     }
@@ -219,16 +252,14 @@ public class MainActivity extends AppCompatActivity
                 public void onDataChange(DataSnapshot dataSnapshot) {
 
 
-
                     tasks.clear();
 
                     if (dataSnapshot.hasChild(TASKS)) {  // if login for first time
 
+                        for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {  // iterate all keys in Users db
 
-                        for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {  // iterate all keys in Users db
-
-                            if(dataSnapshot1.getKey().equals(TASKS)) {
-                                for(DataSnapshot dataSnapshot2 : dataSnapshot1.getChildren()) { // iterate all tasks
+                            if (dataSnapshot1.getKey().equals(TASKS)) {
+                                for (DataSnapshot dataSnapshot2 : dataSnapshot1.getChildren()) { // iterate all tasks
                                     Task friendlyMessage = dataSnapshot2.getValue(Task.class);
                                     friendlyMessage.setPostKey(dataSnapshot2.getKey());
                                     friendlyMessage.setId("" + counter++);
@@ -259,66 +290,23 @@ public class MainActivity extends AppCompatActivity
                 }
             };
 
-           /* mTaskEventListener = new ChildEventListener() {
-                private int counter = 1;
-
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                    if (dataSnapshot.hasChildren()) {
-
-                        if(mTasksDatabaseReference!=null) {
-                            mTasksDatabaseReference = null;
-                        }
-
-
-                        Task friendlyMessage = dataSnapshot.getValue(Task.class);
-                        friendlyMessage.setPostKey(dataSnapshot.getKey());
-                        friendlyMessage.setId("" + counter++);
-
-                        System.out.println("friendlyMessage  = " + friendlyMessage);
-                        //  DummyContent.DummyItem dummyItem = new DummyContent.DummyItem("" + DummyContent.ITEMS.size()+1,friendlyMessage.getStatus(),friendlyMessage.getSummary());
-                        //  dummyItem.setPostKey(friendlyMessage.getId());
-
-                        //DummyContent.ITEMS.add(dummyItem);
-                        tasks.add(friendlyMessage);
-
-                    } else {
-                        attachOneTimeTaskListener();
-                    }
-
-
-                }
-
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                }
-
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
-                }
-
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                }
-
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            };*/
             //mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
-              mUserDatabaseReference.addValueEventListener(mTaskEventListener); // remove it
-           // mUserTaskDatabaseReference.addValueEventListener(mTaskEventListener); // remove it
+            mUserDatabaseReference.addValueEventListener(mTaskEventListener); // remove it
+            // mUserTaskDatabaseReference.addValueEventListener(mTaskEventListener); // remove it
         }
     }
 
-    private void attachOneTimeTaskListener(){
+    private void attachOneTimeTaskListener() {
 
         mTasksDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
 
-                      Task welcomeTask = dataSnapshot1.getValue(Task.class);
-                      System.out.println("Welcome TASK $$$$$$$  -> " + welcomeTask);
-                      mUserTaskDatabaseReference.push().setValue(welcomeTask);
+                    Task welcomeTask = dataSnapshot1.getValue(Task.class);
+                    System.out.println("Welcome TASK $$$$$$$  -> " + welcomeTask);
+                    mUserTaskDatabaseReference.push().setValue(welcomeTask);
 
                 }
 
@@ -333,8 +321,8 @@ public class MainActivity extends AppCompatActivity
 
     private void detachDatabaseReadListener() {
         if (mTaskEventListener != null) {
-             mUserDatabaseReference.removeEventListener(mTaskEventListener);
-           // mUserTaskDatabaseReference.removeEventListener(mTaskEventListener);
+            mUserDatabaseReference.removeEventListener(mTaskEventListener);
+            // mUserTaskDatabaseReference.removeEventListener(mTaskEventListener);
             mTaskEventListener = null;
         }
     }
@@ -398,7 +386,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_gallery) {
-            GalleryFragment galleryFragment = GalleryFragment.newInstance("jjjjjjjjjj", "hhhhhhhshjswsjwswswss");
+            GalleryFragment galleryFragment = GalleryFragment.newInstance(getUserTablePath(), "hhhhhhhshjswsjwswswss");
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
