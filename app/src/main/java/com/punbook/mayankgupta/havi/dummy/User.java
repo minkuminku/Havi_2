@@ -1,45 +1,68 @@
 package com.punbook.mayankgupta.havi.dummy;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * Created by mayankgupta on 13/03/17.
  */
 
-public class User {
+public class User implements Serializable{
 
-    private int points = 10;
-    //private List<Task> tasks = new ArrayList<>();
+    private String username;
+    private String age;
+    private String token;
+    private String gender;
+    private String mobile;
 
-    public User() {
+    public String getUsername() {
+        return username;
     }
 
-    public int getPoints() {
-        return points;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void addPoints(int points) {
-        this.points += points;
+    public String getAge() {
+        return age;
     }
 
-   /* public List<Task> getTasks() {
-
-        Collections.sort(tasks, new Comparator<Task>() {
-            @Override
-            public int compare(Task task, Task t1) {
-                return task.getStartDate().compareTo(t1.getStartDate());
-            }
-        });
-
-        return tasks;
+    public void setAge(String age) {
+        this.age = age;
     }
 
-    public void addTask(Task task) {
-        this.tasks.add(task);
-    }*/
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
 
     @Override
     public String toString() {
         return "User{" +
-                "points=" + points +
+                "username='" + username + '\'' +
+                ", age='" + age + '\'' +
+                ", token='" + token + '\'' +
+                ", gender='" + gender + '\'' +
+                ", mobile='" + mobile + '\'' +
                 '}';
     }
 }

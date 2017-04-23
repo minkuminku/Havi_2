@@ -90,7 +90,7 @@
             />
 
         <EditText
-            android:id="@+id/editTextId"
+            android:id="@+id/userMobileNumber"
             android:inputType="phone"
             android:digits="0123456789"
             android:maxLength="10"

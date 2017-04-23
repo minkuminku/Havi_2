@@ -34,6 +34,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.punbook.mayankgupta.havi.dummy.DummyContent;
 import com.punbook.mayankgupta.havi.dummy.Status;
 import com.punbook.mayankgupta.havi.dummy.Task;
+import com.punbook.mayankgupta.havi.dummy.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +68,10 @@ public class MainActivity extends AppCompatActivity
 
     private String userTableTaskPath;
     private String userTablePath;
+
+    private User mUser;
+
+
 
     public String getUserTablePath() {
         return userTablePath;
@@ -190,8 +195,9 @@ public class MainActivity extends AppCompatActivity
         };
 
 
+
         // this is to show default fragment at start of the App.
-        GalleryFragment galleryFragment = GalleryFragment.newInstance("jjjjjjjjjj", "hhhhhhhshjswsjwswswss");
+      /*  GalleryFragment galleryFragment = GalleryFragment.newInstance(getUserTablePath(), getmUser());
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -201,7 +207,7 @@ public class MainActivity extends AppCompatActivity
 
         fragmentTransaction.replace(R.id.content_main, galleryFragment, TAG);
         fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        fragmentTransaction.commit();*/
 
 
     }
@@ -256,7 +262,12 @@ public class MainActivity extends AppCompatActivity
 
                     if (dataSnapshot.hasChild(TASKS)) {  // if login for first time
 
+                        setmUser(dataSnapshot.getValue(User.class));
+
+                        Log.d(TAG, mUser.toString());
+
                         for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {  // iterate all keys in Users db
+
 
                             if (dataSnapshot1.getKey().equals(TASKS)) {
                                 for (DataSnapshot dataSnapshot2 : dataSnapshot1.getChildren()) { // iterate all tasks
@@ -385,8 +396,14 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_gallery) {
-            GalleryFragment galleryFragment = GalleryFragment.newInstance(getUserTablePath(), "hhhhhhhshjswsjwswswss");
+        if (id == R.id.nav_payments) {
+
+            if(getmUser()==null){
+                Toast.makeText(this, "Slow Internet, Loading...", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+            GalleryFragment galleryFragment = GalleryFragment.newInstance(getUserTablePath(), getmUser());
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -394,31 +411,73 @@ public class MainActivity extends AppCompatActivity
             Log.i("MYTAG", "" + galleryFragment.getId());
             Log.i("MYTAG", "end" + galleryFragment.getTag());
 
-            fragmentTransaction.replace(R.id.content_main, galleryFragment, TAG);
+           /* if (galleryFragment.isAdded()) { // if the fragment is already in container
+                fragmentTransaction.show(galleryFragment);
+            } else { // fragment needs to be added to frame container
+                fragmentTransaction.add(R.id.content_main, galleryFragment, TAG);
+            }
+
+fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();*/
+
+             fragmentTransaction.replace(R.id.content_main, galleryFragment, TAG);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_tasks) {
 
             ItemFragment itemFragment = ItemFragment.newInstance(0, tasks);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
             fragmentTransaction.replace(R.id.content_main, itemFragment, itemFragment.getTag());
-            // fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
+           /* if (itemFragment.isAdded()) { // if the fragment is already in container
+                fragmentTransaction.show(itemFragment);
+            } else { // fragment needs to be added to frame container
+                fragmentTransaction.add(R.id.content_main, itemFragment, itemFragment.getTag());
+            }
 
-        } else if (id == R.id.nav_share) {
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();*/
 
-        } else if (id == R.id.nav_send) {
+
+        } /*else if (id == R.id.nav_share) {
+
+        } */
+
+        else if (id == R.id.nav_send) {
+
+
+            composeEmail(new String[]{"punbook@gmail.com"}, "[PAYLAY] ");
+
 
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public User getmUser() {
+        return mUser;
+    }
+
+    public void setmUser(User mUser) {
+        this.mUser = mUser;
+    }
+
+    private void composeEmail(String[] addresses, String subject) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        intent.putExtra(Intent.EXTRA_EMAIL, addresses);
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
 
@@ -429,8 +488,18 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         TaskFragment taskFragment = TaskFragment.newInstance(item.getStatus().toString(), item.getSummary(), item.getPostKey(), item.getComments(), getUserTableTaskPath());
+
+       /* if (taskFragment.isAdded()) { // if the fragment is already in container
+            fragmentTransaction.show(taskFragment);
+        } else { // fragment needs to be added to frame container
+            fragmentTransaction.add(R.id.content_main, taskFragment, "FRAG_TAG");
+        }
+
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();*/
+
         fragmentTransaction.replace(R.id.content_main, taskFragment, "FRAG_TAG");
-        // fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
 

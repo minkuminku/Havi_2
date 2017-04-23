@@ -4,26 +4,26 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_payments"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:title="Payments" />
 
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_tasks"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:title="Daily Tasks" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Report Issue">
         <menu>
-            <item
+            <!--<item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:title="Share" />-->
             <item
                 android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:icon="@android:drawable/ic_dialog_email"
+                android:title="Email" />
         </menu>
     </item>
 
