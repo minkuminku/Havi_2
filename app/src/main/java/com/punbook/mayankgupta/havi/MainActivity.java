@@ -68,9 +68,17 @@ public class MainActivity extends AppCompatActivity
 
     private String userTableTaskPath;
     private String userTablePath;
+    private String userEmail;
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
 
     private User mUser;
-
 
 
     public String getUserTablePath() {
@@ -159,7 +167,9 @@ public class MainActivity extends AppCompatActivity
                     // User is signed in
 
                     userName.setText(user.getDisplayName());
-                    userEmail.setText(user.getEmail());
+                    setUserEmail(user.getEmail());
+                    userEmail.setText(getUserEmail());
+
 
 
                     System.out.println("user.getPhotoUrl() = " + user.getPhotoUrl());
@@ -193,7 +203,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-
 
 
         // this is to show default fragment at start of the App.
@@ -398,8 +407,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_payments) {
 
-            if(getmUser()==null){
-                Toast.makeText(this, "Slow Internet, Loading...", Toast.LENGTH_SHORT).show();
+            if (getmUser() == null) {
+                Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
@@ -420,7 +429,7 @@ public class MainActivity extends AppCompatActivity
 fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();*/
 
-             fragmentTransaction.replace(R.id.content_main, galleryFragment, TAG);
+            fragmentTransaction.replace(R.id.content_main, galleryFragment, TAG);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
@@ -445,15 +454,12 @@ fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();*/
 
 
-        } /*else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_send) {
 
-        } */
+            // TODO : Change Email Address to Support email
+            final String subject = "[PAYLAY]".concat("[ ").concat(getUserEmail()).concat(" ]");
 
-        else if (id == R.id.nav_send) {
-
-
-            composeEmail(new String[]{"punbook@gmail.com"}, "[PAYLAY] ");
-
+            composeEmail(new String[]{"punbook@gmail.com"}, subject);
 
         }
 

@@ -19,6 +19,8 @@
             </intent-filter>
         </activity>
 
+
+
         <!-- [START firebase_service] -->
         <service
             android:name=".MyFirebaseMessagingService">

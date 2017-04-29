@@ -2,6 +2,7 @@ package com.punbook.mayankgupta.havi;
 
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.ListViewCompat;
@@ -104,7 +105,7 @@ public class GalleryFragment extends Fragment {
 
         Spinner genderSpinner = (Spinner) view.findViewById(R.id.gender_spinner);
         ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.gender_array, android.R.layout.simple_spinner_item);
+                R.array.gender_array, R.layout.task_spinners);
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         genderSpinner.setAdapter(genderAdapter);
 
@@ -131,7 +132,7 @@ public class GalleryFragment extends Fragment {
 
         Spinner ageSpinner = (Spinner) view.findViewById(R.id.age_spinner);
         ArrayAdapter<CharSequence> ageAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.age_array, android.R.layout.simple_spinner_item);
+                R.array.age_array, R.layout.task_spinners);
         ageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ageSpinner.setAdapter(ageAdapter);
 
@@ -195,8 +196,11 @@ public class GalleryFragment extends Fragment {
 
                 if(org.apache.commons.lang3.StringUtils.isNotBlank(mUserPath)) {
                     FirebaseDatabase.getInstance().getReference().child(mUserPath).updateChildren(childUpdates);
+                    Snackbar.make(view, "Updating.....", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
                 //updateButton.setEnabled(false);
+
 
             }
         });

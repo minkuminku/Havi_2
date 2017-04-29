@@ -9,21 +9,39 @@
 
     <!-- TODO: Update blank fragment layout -->
 
+    <LinearLayout
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+
+        >
+
+      <ImageView
+          android:layout_width="match_parent"
+          android:src="@drawable/payment"
+          android:layout_height="match_parent" />
+
+    </LinearLayout>
+
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="30dp"
     android:orientation="horizontal"
 
+
     >
 
     <TextView
         android:text="Gender"
+        style="@style/PaymentTheme"
         android:layout_width="136dp"
         android:gravity="center_vertical"
         android:layout_height="match_parent"
         android:id="@+id/userGender" />
 
     <Spinner
+        android:scrollbarSize="20dp"
         android:id="@+id/gender_spinner"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
@@ -40,6 +58,7 @@
 
         <TextView
             android:text="Age"
+            style="@style/PaymentTheme"
             android:layout_width="136dp"
             android:gravity="center_vertical"
             android:layout_height="match_parent"
@@ -62,6 +81,7 @@
 
         <TextView
             android:text="State"
+            style="@style/PaymentTheme"
             android:layout_width="136dp"
             android:gravity="center_vertical"
             android:layout_height="match_parent"
@@ -69,6 +89,7 @@
 
         <Spinner
             android:id="@+id/city_spinner"
+
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:spinnerMode="dropdown" />
@@ -83,7 +104,8 @@
         >
 
         <TextView
-            android:text="Mobile Number"
+            android:text="Phone"
+            style="@style/PaymentTheme"
             android:layout_width="136dp"
             android:gravity="center_vertical"
             android:layout_height="match_parent"
@@ -93,6 +115,7 @@
             android:id="@+id/userMobileNumber"
             android:inputType="phone"
             android:digits="0123456789"
+            android:hint="@string/mobile_number_hint"
             android:maxLength="10"
             android:layout_width="fill_parent"
             android:layout_height="match_parent" />
@@ -117,7 +140,7 @@
         <TextView
 
             android:text="@string/payout_warning"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:textStyle="italic"
             android:textColor="@color/dark_grey"
             android:layout_height="match_parent" />
@@ -127,6 +150,8 @@
     <Button
         android:layout_marginTop="20dp"
         android:text="Update"
+        android:textColor="@color/tw__solid_white"
+        android:background="@color/authui_colorPrimary"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

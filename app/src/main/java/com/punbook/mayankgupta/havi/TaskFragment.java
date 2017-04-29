@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -102,6 +104,7 @@ public class TaskFragment extends Fragment {
 
         TextView textView = (TextView) view.findViewById(R.id.task_status);
         textView.setText(mParam1);
+        textView.setBackgroundColor(getResources().getColor(R.color.gold));
 
         TextView task_summary = (TextView) view.findViewById(R.id.task_summary);
         task_summary.setText(mParam2);

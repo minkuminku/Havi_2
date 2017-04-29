@@ -5,4 +5,8 @@
     <color name="colorAccent">#FF4081</color>
     <color name="magnitude1">#4A7BA7</color>
     <color name="dark_grey">#696969</color>
+    <color name="black">#000000</color>
+    <color name="green">#3D6F3D</color>
+    <color name="gold">#CEAF0A</color>
+    <color name="green_light">#BBF1BB</color>
 </resources>
