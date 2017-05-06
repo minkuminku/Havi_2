@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity
 
 
         // this is to show default fragment at start of the App.
-      /*  GalleryFragment galleryFragment = GalleryFragment.newInstance(getUserTablePath(), getmUser());
+      /*  PaymentFragment galleryFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -412,24 +412,24 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
 
-            GalleryFragment galleryFragment = GalleryFragment.newInstance(getUserTablePath(), getmUser());
+            PaymentFragment paymentFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-            Toast.makeText(this, galleryFragment.getTag(), Toast.LENGTH_SHORT).show();
-            Log.i("MYTAG", "" + galleryFragment.getId());
-            Log.i("MYTAG", "end" + galleryFragment.getTag());
+            Toast.makeText(this, paymentFragment.getTag(), Toast.LENGTH_SHORT).show();
+            Log.i("MYTAG", "" + paymentFragment.getId());
+            Log.i("MYTAG", "end" + paymentFragment.getTag());
 
-           /* if (galleryFragment.isAdded()) { // if the fragment is already in container
-                fragmentTransaction.show(galleryFragment);
+           /* if (paymentFragment.isAdded()) { // if the fragment is already in container
+                fragmentTransaction.show(paymentFragment);
             } else { // fragment needs to be added to frame container
-                fragmentTransaction.add(R.id.content_main, galleryFragment, TAG);
+                fragmentTransaction.add(R.id.content_main, paymentFragment, TAG);
             }
 
 fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();*/
 
-            fragmentTransaction.replace(R.id.content_main, galleryFragment, TAG);
+            fragmentTransaction.replace(R.id.content_main, paymentFragment, TAG);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
@@ -493,7 +493,8 @@ fragmentTransaction.addToBackStack(null);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        TaskFragment taskFragment = TaskFragment.newInstance(item.getStatus().toString(), item.getSummary(), item.getPostKey(), item.getComments(), getUserTableTaskPath());
+       // TaskFragment taskFragment = TaskFragment.newInstance(item.getStatus().toString(), item.getSummary(), item.getPostKey(), item.getComments(), getUserTableTaskPath());
+        TaskFragment taskFragment = TaskFragment.newInstance(item,getUserTableTaskPath());
 
        /* if (taskFragment.isAdded()) { // if the fragment is already in container
             fragmentTransaction.show(taskFragment);

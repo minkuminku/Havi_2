@@ -9,4 +9,6 @@
     <color name="green">#3D6F3D</color>
     <color name="gold">#CEAF0A</color>
     <color name="green_light">#BBF1BB</color>
+    <color name="red_light">#8b475d</color>
+    <color name="grey_light">#DCDCDC</color>
 </resources>

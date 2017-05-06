@@ -10,9 +10,8 @@
 
         android:layout_height="30dp"
         android:text="Active"
-        android:textColor="@color/tw__composer_red"
-        android:textAlignment="center"
 
+    style="@style/TaskStatus"
         android:id="@+id/task_status" />
 
     <TextView
@@ -24,27 +23,9 @@
         android:padding="8dp"
         android:ellipsize="end"
         android:maxLines="1"
-        style="@style/TaskTheme"
+        style="@style/TaskName"
         android:scrollbars="vertical"
         android:text="@string/task_name" />
-
-
-
-    <!--LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_marginTop="8dp"
-        android:layout_height="30dp">
-
-        <TextView
-            android:text="Active"
-            android:paddingLeft="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/task_status" />
-
-
-    </LinearLayout-->
 
 <ScrollView
     android:layout_width="match_parent"
@@ -54,7 +35,7 @@
         android:id="@+id/task_summary"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
+        style="@style/TaskTheme.Summary"
         android:scrollbars="vertical"
         android:text="@string/hello_blank_fragment" />
 
@@ -64,27 +45,28 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:background="#DCDCDC">
+        android:background="@color/grey_light"
+    >
     <EditText
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:inputType="textMultiLine"
-        android:padding="5dp"
-        android:ems="10"
-        android:maxLines="6"
+        style="@style/TaskComments"
         android:id="@+id/task_comments"
-        android:background="@color/cardview_dark_background"
+        android:background="@color/tw__transparent"
         android:hint="Comments"
        />
 
 </ScrollView>
 
     <Button
-        android:text="Submit"
-        android:layout_gravity="center"
+        android:text=" Submit Task "
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="35dp"
         android:textAlignment="center"
+        android:textColor="@color/tw__solid_white"
+        android:background="@color/authui_colorPrimary"
+        android:layout_gravity="center_horizontal"
         android:id="@+id/task_submit_button"
         android:layout_weight="0" />
 

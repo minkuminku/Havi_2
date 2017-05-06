@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
    android:padding="16dp"
     android:orientation="vertical"
-    tools:context="com.punbook.mayankgupta.havi.GalleryFragment">
+    tools:context="com.punbook.mayankgupta.havi.PaymentFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -26,7 +26,7 @@
 
 <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="30dp"
+    android:layout_height="35dp"
     android:orientation="horizontal"
 
 
@@ -51,7 +51,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="35dp"
         android:orientation="horizontal"
 
         >
@@ -74,25 +74,27 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="40dp"
         android:orientation="horizontal"
 
         >
 
         <TextView
-            android:text="State"
+            android:text="Area pincode"
             style="@style/PaymentTheme"
             android:layout_width="136dp"
             android:gravity="center_vertical"
             android:layout_height="match_parent"
             />
 
-        <Spinner
-            android:id="@+id/city_spinner"
-
+        <EditText
+            android:id="@+id/userPinCode"
+            android:inputType="phone"
+            android:digits="0123456789"
+            android:hint="@string/pin_code_hint"
+            android:maxLength="6"
             android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:spinnerMode="dropdown" />
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
@@ -150,8 +152,6 @@
     <Button
         android:layout_marginTop="20dp"
         android:text="Update"
-        android:textColor="@color/tw__solid_white"
-        android:background="@color/authui_colorPrimary"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

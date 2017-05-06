@@ -35,9 +35,29 @@
 
     </style>
 
-    <style name="TaskTheme.Name">
-        <item name="android:textSize">20sp</item>
+    <style name="TaskName">
+        <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/red_light</item>
     </style>
+
+    <style name="TaskTheme.Summary">
+      <item name="android:padding">8dp</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TaskStatus">
+       <item name="android:textColor"> @color/tw__solid_white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAlignment">center</item>
+       <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="TaskComments">
+        <item name="android:padding">8dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:maxLines">6</item> <!-- This means 6 lines to be displayed, not max limit-->
+    </style>
+
 
 </resources>

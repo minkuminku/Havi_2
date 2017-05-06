@@ -4,12 +4,9 @@ package com.punbook.mayankgupta.havi;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.ListViewCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,32 +27,33 @@ import static com.punbook.mayankgupta.havi.MainActivity.SEPERATOR;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link GalleryFragment#newInstance} factory method to
+ * Use the {@link PaymentFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GalleryFragment extends Fragment {
+public class PaymentFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String USER_PATH = "param1";
     private static final String GENDER = "param2";
     private static final String AGE = "param3";
     private static final String NUMBER = "param4";
+    private static final String PINCODE = "param5";
 
     // Database Constants
     private static final String GENDER_KEY = "gender";
     private static final String AGE_KEY = "age";
     private static final String MOBILE_NUMBER_KEY = "mobile";
+    private static final String PIN_CODE_KEY = "pincode";
 
     // TODO: Rename and change types of parameters
     private String mUserPath;
     private String mGender;
     private String mAge;
     private String mNumber;
+    private String mPinCode;
 
-    /*String gender = "NULL";
-    String age = "NULL";*/
 
-    public GalleryFragment() {
+    public PaymentFragment() {
         // Required empty public constructor
     }
 
@@ -64,17 +62,18 @@ public class GalleryFragment extends Fragment {
      * this fragment using the provided parameters.
      *
      * @param userPath Parameter 1.
-     * @param user   Parameter 2.
-     * @return A new instance of fragment GalleryFragment.
+     * @param user     Parameter 2.
+     * @return A new instance of fragment PaymentFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static GalleryFragment newInstance(String userPath, User user) {
-        GalleryFragment fragment = new GalleryFragment();
+    public static PaymentFragment newInstance(String userPath, User user) {
+        PaymentFragment fragment = new PaymentFragment();
         Bundle args = new Bundle();
         args.putString(USER_PATH, userPath);
-        args.putString(GENDER, user.getGender()==null?"":user.getGender());
-        args.putString(AGE, user.getAge()==null?"":user.getAge());
-        args.putString(NUMBER, user.getMobile()==null?"":user.getMobile());
+        args.putString(GENDER, user.getGender() == null ? "" : user.getGender());
+        args.putString(AGE, user.getAge() == null ? "" : user.getAge());
+        args.putString(NUMBER, user.getMobile() == null ? "" : user.getMobile());
+        args.putString(PINCODE, user.getPincode() == null ? "" : user.getPincode());
         fragment.setArguments(args);
         return fragment;
     }
@@ -87,6 +86,7 @@ public class GalleryFragment extends Fragment {
             mGender = getArguments().getString(GENDER);
             mAge = getArguments().getString(AGE);
             mNumber = getArguments().getString(NUMBER);
+            mPinCode = getArguments().getString(PINCODE);
         }
 
 
@@ -98,7 +98,7 @@ public class GalleryFragment extends Fragment {
         // Inflate the layout for this fragment
         Log.d("GALLERY", mUserPath == null ? "NULL" : mUserPath);
 
-        final View view = inflater.inflate(R.layout.fragment_gallery, container, false);
+        final View view = inflater.inflate(R.layout.fragment_payments, container, false);
 
         final Button updateButton = (Button) view.findViewById(R.id.update_payment_button);
 
@@ -161,12 +161,12 @@ public class GalleryFragment extends Fragment {
         mobileNumber.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-               // Log.d("GALLERY", "BEFORE  text changes");
+                // Log.d("GALLERY", "BEFORE  text changes");
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-              //  Log.d("GALLERY", "ON  text changes");
+                //  Log.d("GALLERY", "ON  text changes");
             }
 
             @Override
@@ -181,6 +181,30 @@ public class GalleryFragment extends Fragment {
         }
 
 
+        final TextView pinCode = (TextView) view.findViewById(R.id.userPinCode);
+
+        pinCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Log.d("GALLERY", "BEFORE  text changes");
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //  Log.d("GALLERY", "ON  text changes");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mPinCode = s.toString();
+                checkButtonStatus(updateButton);
+            }
+        });
+
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(mPinCode)) {
+            pinCode.setText(mPinCode);
+        }
+
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,17 +214,19 @@ public class GalleryFragment extends Fragment {
                 childUpdates.put(SEPERATOR + GENDER_KEY, mGender);
                 childUpdates.put(SEPERATOR + AGE_KEY, mAge);
                 childUpdates.put(SEPERATOR + MOBILE_NUMBER_KEY, mobileNumber.getText().toString());
+                childUpdates.put(SEPERATOR + PIN_CODE_KEY, pinCode.getText().toString());
                 Log.d("GALLERY", " Child UPDATES " + childUpdates);
                 Log.d("GALLERY", " path " + mUserPath);
 
 
-                if(org.apache.commons.lang3.StringUtils.isNotBlank(mUserPath)) {
+                if (org.apache.commons.lang3.StringUtils.isNotBlank(mUserPath) && checkButtonStatus(updateButton)) {
                     FirebaseDatabase.getInstance().getReference().child(mUserPath).updateChildren(childUpdates);
                     Snackbar.make(view, "Updating.....", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                } else {
+                    Snackbar.make(view, "Could not update, complete all details!!", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
-                //updateButton.setEnabled(false);
-
 
             }
         });
@@ -209,12 +235,18 @@ public class GalleryFragment extends Fragment {
         return view;
     }
 
-    private void checkButtonStatus(Button updateButton) {
+    private boolean checkButtonStatus(Button updateButton) {
 
-        if (mGender.equalsIgnoreCase("none") || mAge.equalsIgnoreCase("none") || mNumber.length()<10) {
-            updateButton.setEnabled(false);
+        if (mGender.equalsIgnoreCase("none") || mAge.equalsIgnoreCase("none") || mNumber.length() < 10 || mPinCode.length() < 6) {
+
+            updateButton.setTextColor(getResources().getColor(R.color.black));
+            updateButton.setBackgroundColor(getResources().getColor(R.color.grey_light));
+            return false;
         } else {
-            updateButton.setEnabled(true);
+
+            updateButton.setTextColor(getResources().getColor(R.color.tw__solid_white));
+            updateButton.setBackgroundColor(getResources().getColor(R.color.authui_colorPrimary));
+            return true;
         }
 
     }

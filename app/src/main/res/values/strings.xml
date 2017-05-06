@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Havi</string>
     <string name="mobile_number_hint">10 digit mobile num.</string>
+    <string name="pin_code_hint">113344</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

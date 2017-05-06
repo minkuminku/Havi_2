@@ -1,5 +1,6 @@
 package com.punbook.mayankgupta.havi;
 
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,17 +11,20 @@ import com.punbook.mayankgupta.havi.ItemFragment.OnListFragmentInteractionListen
 import com.punbook.mayankgupta.havi.dummy.DummyContent.DummyItem;
 import com.punbook.mayankgupta.havi.dummy.Task;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Task} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
+ *
  */
 public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder> {
 
     private final List<Task> mValues;
     private final OnListFragmentInteractionListener mListener;
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 
     public MyItemRecyclerViewAdapter(List<Task> items, OnListFragmentInteractionListener listener) {
         mValues = items;
@@ -39,7 +43,7 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         holder.mItem = mValues.get(position);
        // holder.mIdView.setText(mValues.get(position).getId());
         holder.mContentView.setText(mValues.get(position).getName());
-        holder.mDate.setText("3 March 2017");
+        holder.mDate.setText(simpleDateFormat.format(new Date(mValues.get(position).getStartDate())));
         holder.mContentStatus.setText(mValues.get(position).getStatus().toString());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

@@ -14,6 +14,9 @@ public class User implements Serializable{
     private String token;
     private String gender;
     private String mobile;
+    private String pincode;
+
+
 
     public String getUsername() {
         return username;
@@ -55,6 +58,14 @@ public class User implements Serializable{
         this.mobile = mobile;
     }
 
+    public String getPincode() {
+        return pincode;
+    }
+
+    public void setPincode(String pincode) {
+        this.pincode = pincode;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -63,6 +74,7 @@ public class User implements Serializable{
                 ", token='" + token + '\'' +
                 ", gender='" + gender + '\'' +
                 ", mobile='" + mobile + '\'' +
+                ", pincode='" + pincode + '\'' +
                 '}';
     }
 }
