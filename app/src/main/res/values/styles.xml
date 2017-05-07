@@ -59,5 +59,10 @@
         <item name="android:maxLines">6</item> <!-- This means 6 lines to be displayed, not max limit-->
     </style>
 
+    <style name="Authentication_theme_1">
+        <item name="android:background">@color/dark_grey</item>
+
+    </style>
+
 
 </resources>

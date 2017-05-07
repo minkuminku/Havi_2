@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.StyleRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -38,6 +39,8 @@ import com.punbook.mayankgupta.havi.dummy.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -50,6 +53,9 @@ public class MainActivity extends AppCompatActivity
     public static final String DB_ROOT = "users";
     public static final String SEPERATOR = "/";
     public static final String TASKS = "tasks";
+    public static final String TASK_FRAGMENT_TAG = "TASK_FRAG_TAG";
+    public static final String ITEM_FRAGMENT_TAG = "TASK_ITEM_FRAG_TAG";
+    public static final String PAYMENT_FRAGMENT_TAG = "PAYMENT_FRAG_TAG";
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mMessagesDatabaseReference;
@@ -138,14 +144,14 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -196,6 +202,7 @@ public class MainActivity extends AppCompatActivity
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
                                     .setIsSmartLockEnabled(false)
+                                    .setLogo(R.drawable.chocobox)
                                     .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
                                             new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
                                     .build(),
@@ -420,38 +427,51 @@ public class MainActivity extends AppCompatActivity
             Log.i("MYTAG", "" + paymentFragment.getId());
             Log.i("MYTAG", "end" + paymentFragment.getTag());
 
-           /* if (paymentFragment.isAdded()) { // if the fragment is already in container
-                fragmentTransaction.show(paymentFragment);
-            } else { // fragment needs to be added to frame container
-                fragmentTransaction.add(R.id.content_main, paymentFragment, TAG);
-            }
 
-fragmentTransaction.addToBackStack(null);
+
+           /* fragmentTransaction.replace(R.id.content_main, paymentFragment, TAG);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();*/
 
-            fragmentTransaction.replace(R.id.content_main, paymentFragment, TAG);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
+            boolean fragmentPopped = fragmentManager.popBackStackImmediate (PAYMENT_FRAGMENT_TAG, 0);
+
+            if (!fragmentPopped){ //fragment not in back stack, create it.
+                fragmentTransaction.replace(R.id.content_main, paymentFragment);
+                fragmentTransaction.addToBackStack(PAYMENT_FRAGMENT_TAG);
+                fragmentTransaction.commit();
+            }
 
 
         } else if (id == R.id.nav_tasks) {
+
+            Collections.sort(tasks, new Comparator<Task>() {
+                @Override
+                public int compare(Task o1, Task o2) {
+                    if( o1.getStartDate() > o2.getStartDate()){
+                        return -1;
+                    }else if(o1.getStartDate() < o2.getStartDate()){
+                        return 1;
+                    }else {
+                        return 0;
+                    }
+                }
+            });
 
             ItemFragment itemFragment = ItemFragment.newInstance(0, tasks);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-            fragmentTransaction.replace(R.id.content_main, itemFragment, itemFragment.getTag());
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-
-           /* if (itemFragment.isAdded()) { // if the fragment is already in container
-                fragmentTransaction.show(itemFragment);
-            } else { // fragment needs to be added to frame container
-                fragmentTransaction.add(R.id.content_main, itemFragment, itemFragment.getTag());
-            }
-
+            /*fragmentTransaction.replace(R.id.content_main, itemFragment, itemFragment.getTag());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();*/
+
+            boolean fragmentPopped = fragmentManager.popBackStackImmediate (ITEM_FRAGMENT_TAG, 0);
+
+            if (!fragmentPopped){ //fragment not in back stack, create it.
+                fragmentTransaction.replace(R.id.content_main, itemFragment);
+                fragmentTransaction.addToBackStack(ITEM_FRAGMENT_TAG);
+                fragmentTransaction.commit();
+            }
 
 
         } else if (id == R.id.nav_send) {
@@ -496,18 +516,24 @@ fragmentTransaction.addToBackStack(null);
        // TaskFragment taskFragment = TaskFragment.newInstance(item.getStatus().toString(), item.getSummary(), item.getPostKey(), item.getComments(), getUserTableTaskPath());
         TaskFragment taskFragment = TaskFragment.newInstance(item,getUserTableTaskPath());
 
-       /* if (taskFragment.isAdded()) { // if the fragment is already in container
-            fragmentTransaction.show(taskFragment);
-        } else { // fragment needs to be added to frame container
-            fragmentTransaction.add(R.id.content_main, taskFragment, "FRAG_TAG");
-        }
+
+
+
+       /* fragmentTransaction.replace(R.id.content_main, taskFragment, "FRAG_TAG");
 
         fragmentTransaction.addToBackStack(null);
+
         fragmentTransaction.commit();*/
 
-        fragmentTransaction.replace(R.id.content_main, taskFragment, "FRAG_TAG");
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        // THIS IS CRUTIAL FOR BACK BUTTON FUNCTIONING, IT WILL AVOID ADDING TO STACK multiple times
+        // we can also do this to above fragments if we face mem issue or back issue
+        boolean fragmentPopped = fragmentManager.popBackStackImmediate (TASK_FRAGMENT_TAG, 0);
+
+        if (!fragmentPopped){ //fragment not in back stack, create it.
+            fragmentTransaction.replace(R.id.content_main, taskFragment);
+            fragmentTransaction.addToBackStack(TASK_FRAGMENT_TAG);
+            fragmentTransaction.commit();
+        }
 
 
     }
