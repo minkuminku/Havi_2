@@ -2,12 +2,10 @@ package com.punbook.mayankgupta.havi;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.StyleRes;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -19,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -86,6 +85,33 @@ public class MainActivity extends AppCompatActivity
 
     private User mUser;
 
+     View loadingIndicator ;
+
+    UpdateProgressBarTask updateProgressBarTask = new UpdateProgressBarTask();
+
+    Thread task11 = new Thread(new Runnable() {
+        @Override
+        public void run() {
+
+            int i=10;
+            while(getmUser()==null && i>0){
+
+                Log.d(TAG,"USER S NULL " +i);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                i=i-1;
+            }
+setProcessBar(View.INVISIBLE);
+        }
+    });
+
+
+
 
     public String getUserTablePath() {
         return userTablePath;
@@ -95,10 +121,36 @@ public class MainActivity extends AppCompatActivity
         this.userTablePath = userTablePath;
     }
 
+    /**
+     * Called after {@link #onStop} when the current activity is being
+     * re-displayed to the user (the user has navigated back to it).  It will
+     * be followed by {@link #onStart} and then {@link #onResume}.
+     * <p>
+     * <p>For activities that are using raw {@link Cursor} objects (instead of
+     * creating them through
+     * {@link #managedQuery(Uri, String[], String, String[], String)},
+     * this is usually the place
+     * where the cursor should be requeried (because you had deactivated it in
+     * {@link #onStop}.
+     * <p>
+     * <p><em>Derived classes must call through to the super class's
+     * implementation of this method.  If they do not, an exception will be
+     * thrown.</em></p>
+     *
+     * @see #onStop
+     * @see #onStart
+     * @see #onResume
+     */
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        System.out.println("###############ON CREATE MAIN ACTIVITY###############");
 
         // Initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -109,6 +161,8 @@ public class MainActivity extends AppCompatActivity
         mTasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
 
         //      mUserDatabaseReference = mFirebaseDatabase.getReference().child("users/user1");
+
+
 
 
         // [START handle_data_extras]
@@ -153,6 +207,11 @@ public class MainActivity extends AppCompatActivity
             }
         });*/
 
+
+        loadingIndicator = findViewById(R.id.loading_indicator);
+        loadingIndicator.setVisibility(View.VISIBLE);
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -164,6 +223,15 @@ public class MainActivity extends AppCompatActivity
         //attachDatabaseReadListener();
         final TextView userName = (TextView) navigationView.getHeaderView(0).findViewById(R.id.userName);
         final TextView userEmail = (TextView) navigationView.getHeaderView(0).findViewById(R.id.userEmail);
+
+        final Button retryButton = (Button) findViewById(R.id.retryButton);
+
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRestart();
+            }
+        });
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -191,9 +259,21 @@ public class MainActivity extends AppCompatActivity
                     mUserDatabaseReference.child("username").setValue(user.getEmail());
 
                     mUserDatabaseReference.child("token").setValue(FirebaseInstanceId.getInstance().getToken());
-                    Log.d(TAG, " token: " + FirebaseInstanceId.getInstance().getToken());
+                    Log.d(TAG, "token: " + FirebaseInstanceId.getInstance().getToken());
                     // mUserDatabaseReference.child("name").setValue(user.getEmail());
                     onSignedInInitialize(user.getDisplayName());
+
+
+                    // loadingIndicator = findViewById(R.id.loading_indicator);
+
+
+                  // task11.start();
+                    if(updateProgressBarTask.getStatus() != AsyncTask.Status.RUNNING){
+                        updateProgressBarTask.execute();
+                    }
+
+
+
                 } else {
                     // User is signed out
                     onSignedOutCleanup();
@@ -212,6 +292,19 @@ public class MainActivity extends AppCompatActivity
         };
 
 
+      /*  while(getmUser()==null){
+
+            Log.d(TAG,"USER S NULL");
+
+            try {
+                Thread.currentThread().sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }*/
+
+
+
         // this is to show default fragment at start of the App.
       /*  PaymentFragment galleryFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -225,6 +318,12 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();*/
 
+
+    }
+
+    public void setProcessBar(int visibility){
+
+         loadingIndicator.setVisibility(visibility);
 
     }
 
@@ -254,6 +353,7 @@ public class MainActivity extends AppCompatActivity
     private void onSignedInInitialize(String username) {
         // mUsername = username;
         attachDatabaseReadListener();
+
     }
 
     private void onSignedOutCleanup() {
@@ -414,18 +514,16 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_payments) {
 
-            if (getmUser() == null) {
-                Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show();
-                return false;
-            }
 
-            PaymentFragment paymentFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            if(getmUser()!=null) {
 
-            Toast.makeText(this, paymentFragment.getTag(), Toast.LENGTH_SHORT).show();
-            Log.i("MYTAG", "" + paymentFragment.getId());
-            Log.i("MYTAG", "end" + paymentFragment.getTag());
+                PaymentFragment paymentFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                Toast.makeText(this, paymentFragment.getTag(), Toast.LENGTH_SHORT).show();
+                Log.i("MYTAG", "" + paymentFragment.getId());
+                Log.i("MYTAG", "end" + paymentFragment.getTag());
 
 
 
@@ -433,16 +531,26 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();*/
 
-            boolean fragmentPopped = fragmentManager.popBackStackImmediate (PAYMENT_FRAGMENT_TAG, 0);
+                boolean fragmentPopped = fragmentManager.popBackStackImmediate(PAYMENT_FRAGMENT_TAG, 0);
 
-            if (!fragmentPopped){ //fragment not in back stack, create it.
-                fragmentTransaction.replace(R.id.content_main, paymentFragment);
-                fragmentTransaction.addToBackStack(PAYMENT_FRAGMENT_TAG);
-                fragmentTransaction.commit();
+                if (!fragmentPopped) { //fragment not in back stack, create it.
+                    fragmentTransaction.replace(R.id.content_main, paymentFragment);
+                    fragmentTransaction.addToBackStack(PAYMENT_FRAGMENT_TAG);
+                    fragmentTransaction.commit();
+                }
+
+            }else {
+                // SET NO INTERNET CONNECTION.
+
             }
 
 
         } else if (id == R.id.nav_tasks) {
+
+            if(tasks.isEmpty()){
+                Toast.makeText(this, "Connection Error, Try Again", Toast.LENGTH_SHORT).show();
+                return false;
+            }
 
             Collections.sort(tasks, new Comparator<Task>() {
                 @Override
@@ -544,6 +652,83 @@ public class MainActivity extends AppCompatActivity
     }
 
     //TODO : make DAO for handling database reference
+
+
+    private class UpdateProgressBarTask extends AsyncTask<View, Integer, Integer> {
+
+
+        /**
+         * Override this method to perform a computation on a background thread. The
+         * specified parameters are the parameters passed to {@link #execute}
+         * by the caller of this task.
+         * <p>
+         * This method can call {@link #publishProgress} to publish updates
+         * on the UI thread.
+         *
+         * @param params The parameters of the task.
+         * @return A result, defined by the subclass of this task.
+         * @see #onPreExecute()
+         * @see #onPostExecute
+         * @see #publishProgress
+         */
+        @Override
+        protected Integer doInBackground(View... params) {
+            int i=10;
+            while(getmUser()==null && i>0){
+
+                Log.d(TAG,"USER S NULL " +i);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                i=i-1;
+            }
+
+
+            return View.INVISIBLE;
+        }
+
+        protected void onPostExecute(Integer result) {
+            setProcessBar(result);
+
+            if(getmUser()!=null) {
+                PaymentFragment paymentFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                // Toast.makeText(this, paymentFragment.getTag(), Toast.LENGTH_SHORT).show();
+                //  Log.i("MYTAG", "" + paymentFragment.getId());
+                //  Log.i("MYTAG", "end" + paymentFragment.getTag());
+
+
+
+           /* fragmentTransaction.replace(R.id.content_main, paymentFragment, TAG);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();*/
+
+                boolean fragmentPopped = fragmentManager.popBackStackImmediate(PAYMENT_FRAGMENT_TAG, 0);
+
+                if (!fragmentPopped) { //fragment not in back stack, create it.
+                    fragmentTransaction.replace(R.id.content_main, paymentFragment);
+                    fragmentTransaction.addToBackStack(PAYMENT_FRAGMENT_TAG);
+                    fragmentTransaction.commit();
+                }
+
+            }else {
+                TextView textView = (TextView) findViewById(R.id.empty_view);
+                textView.setText("No Internet Connection");
+            }
+
+
+
+        }
+
+
+    }
+
 
 
 }
