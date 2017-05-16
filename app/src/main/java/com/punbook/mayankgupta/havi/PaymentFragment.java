@@ -102,6 +102,10 @@ public class PaymentFragment extends Fragment {
 
         final Button updateButton = (Button) view.findViewById(R.id.update_payment_button);
 
+        if(mGender.isEmpty()){
+            updateButton.setText("Save");
+        }
+
 
         Spinner genderSpinner = (Spinner) view.findViewById(R.id.gender_spinner);
         ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(getContext(),

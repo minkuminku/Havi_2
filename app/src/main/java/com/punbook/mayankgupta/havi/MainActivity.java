@@ -86,8 +86,9 @@ public class MainActivity extends AppCompatActivity
     private User mUser;
 
      View loadingIndicator ;
+     Button retryButton;
 
-    UpdateProgressBarTask updateProgressBarTask = new UpdateProgressBarTask();
+  //  UpdateProgressBarTask updateProgressBarTask = new UpdateProgressBarTask();
 
     Thread task11 = new Thread(new Runnable() {
         @Override
@@ -121,26 +122,7 @@ setProcessBar(View.INVISIBLE);
         this.userTablePath = userTablePath;
     }
 
-    /**
-     * Called after {@link #onStop} when the current activity is being
-     * re-displayed to the user (the user has navigated back to it).  It will
-     * be followed by {@link #onStart} and then {@link #onResume}.
-     * <p>
-     * <p>For activities that are using raw {@link Cursor} objects (instead of
-     * creating them through
-     * {@link #managedQuery(Uri, String[], String, String[], String)},
-     * this is usually the place
-     * where the cursor should be requeried (because you had deactivated it in
-     * {@link #onStop}.
-     * <p>
-     * <p><em>Derived classes must call through to the super class's
-     * implementation of this method.  If they do not, an exception will be
-     * thrown.</em></p>
-     *
-     * @see #onStop
-     * @see #onStart
-     * @see #onResume
-     */
+
     @Override
     protected void onRestart() {
         super.onRestart();
@@ -224,12 +206,15 @@ setProcessBar(View.INVISIBLE);
         final TextView userName = (TextView) navigationView.getHeaderView(0).findViewById(R.id.userName);
         final TextView userEmail = (TextView) navigationView.getHeaderView(0).findViewById(R.id.userEmail);
 
-        final Button retryButton = (Button) findViewById(R.id.retryButton);
+         retryButton = (Button) findViewById(R.id.retryButton);
+         retryButton.setVisibility(View.GONE);
 
         retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onRestart();
+                setVisible(false);
+                finish();
+                startActivity(getIntent());
             }
         });
 
@@ -268,9 +253,7 @@ setProcessBar(View.INVISIBLE);
 
 
                   // task11.start();
-                    if(updateProgressBarTask.getStatus() != AsyncTask.Status.RUNNING){
-                        updateProgressBarTask.execute();
-                    }
+                   new UpdateProgressBarTask().execute();
 
 
 
@@ -539,18 +522,11 @@ setProcessBar(View.INVISIBLE);
                     fragmentTransaction.commit();
                 }
 
-            }else {
-                // SET NO INTERNET CONNECTION.
-
             }
 
 
         } else if (id == R.id.nav_tasks) {
 
-            if(tasks.isEmpty()){
-                Toast.makeText(this, "Connection Error, Try Again", Toast.LENGTH_SHORT).show();
-                return false;
-            }
 
             Collections.sort(tasks, new Comparator<Task>() {
                 @Override
@@ -695,19 +671,11 @@ setProcessBar(View.INVISIBLE);
             setProcessBar(result);
 
             if(getmUser()!=null) {
+
                 PaymentFragment paymentFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-                // Toast.makeText(this, paymentFragment.getTag(), Toast.LENGTH_SHORT).show();
-                //  Log.i("MYTAG", "" + paymentFragment.getId());
-                //  Log.i("MYTAG", "end" + paymentFragment.getTag());
-
-
-
-           /* fragmentTransaction.replace(R.id.content_main, paymentFragment, TAG);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();*/
 
                 boolean fragmentPopped = fragmentManager.popBackStackImmediate(PAYMENT_FRAGMENT_TAG, 0);
 
@@ -720,6 +688,7 @@ setProcessBar(View.INVISIBLE);
             }else {
                 TextView textView = (TextView) findViewById(R.id.empty_view);
                 textView.setText("No Internet Connection");
+                retryButton.setVisibility(View.VISIBLE);
             }
 
 
