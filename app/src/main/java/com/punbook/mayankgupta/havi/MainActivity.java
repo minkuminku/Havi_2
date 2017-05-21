@@ -1,5 +1,8 @@
 package com.punbook.mayankgupta.havi;
 
+import android.app.SearchManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -12,12 +15,15 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,13 +63,10 @@ public class MainActivity extends AppCompatActivity
     public static final String PAYMENT_FRAGMENT_TAG = "PAYMENT_FRAG_TAG";
 
     private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference mMessagesDatabaseReference;
     private DatabaseReference mUserDatabaseReference;
     private DatabaseReference mUserTaskDatabaseReference;
     private DatabaseReference mTasksDatabaseReference;
-    private ValueEventListener mOneTimeTaskListner;
     private ValueEventListener mTaskEventListener;
-    private ChildEventListener mChildEventListener2;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
@@ -85,34 +88,18 @@ public class MainActivity extends AppCompatActivity
 
     private User mUser;
 
-     View loadingIndicator ;
-     Button retryButton;
+    private View loadingIndicator;
+    private Button retryButton;
 
-  //  UpdateProgressBarTask updateProgressBarTask = new UpdateProgressBarTask();
+    private Menu menu;
 
-    Thread task11 = new Thread(new Runnable() {
-        @Override
-        public void run() {
+    public Menu getMenu() {
+        return menu;
+    }
 
-            int i=10;
-            while(getmUser()==null && i>0){
-
-                Log.d(TAG,"USER S NULL " +i);
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                i=i-1;
-            }
-setProcessBar(View.INVISIBLE);
-        }
-    });
-
-
-
+    public void setMenu(Menu menu) {
+        this.menu = menu;
+    }
 
     public String getUserTablePath() {
         return userTablePath;
@@ -128,66 +115,41 @@ setProcessBar(View.INVISIBLE);
         super.onRestart();
     }
 
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+          Toast.makeText(getApplicationContext(),query,Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         System.out.println("###############ON CREATE MAIN ACTIVITY###############");
 
         // Initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
-        //mFirebaseStorage = FirebaseStorage.getInstance();
-
-        // mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("users");
         mTasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
 
-        //      mUserDatabaseReference = mFirebaseDatabase.getReference().child("users/user1");
 
 
-
-
-        // [START handle_data_extras]
-
-        // [END handle_data_extras]
-
-        if (getIntent().getExtras() != null) {
-
-            Task task = new Task();
-
-            for (String key : getIntent().getExtras().keySet()) {
-                Object value = getIntent().getExtras().get(key);
-                Log.d(TAG, "Key: " + key + " Value: " + value);
-                switch (key) {
-
-                    case "SUMMARY":
-                        task.setSummary(value.toString());
-                        task.setStartDate(6372637236l);
-                        task.setExpiryDate(62372637236l);
-                        task.setStatus(Status.parse("active"));
-                        //   mUserDatabaseReference.push().setValue(task);
-                        break;
-
-
-                }
-            }
-
-
-        }
 
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
 
 
         loadingIndicator = findViewById(R.id.loading_indicator);
@@ -202,12 +164,12 @@ setProcessBar(View.INVISIBLE);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        //attachDatabaseReadListener();
+
         final TextView userName = (TextView) navigationView.getHeaderView(0).findViewById(R.id.userName);
         final TextView userEmail = (TextView) navigationView.getHeaderView(0).findViewById(R.id.userEmail);
 
-         retryButton = (Button) findViewById(R.id.retryButton);
-         retryButton.setVisibility(View.GONE);
+        retryButton = (Button) findViewById(R.id.retryButton);
+        retryButton.setVisibility(View.GONE);
 
         retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -230,7 +192,6 @@ setProcessBar(View.INVISIBLE);
                     userEmail.setText(getUserEmail());
 
 
-
                     System.out.println("user.getPhotoUrl() = " + user.getPhotoUrl());
 
 
@@ -245,15 +206,14 @@ setProcessBar(View.INVISIBLE);
 
                     mUserDatabaseReference.child("token").setValue(FirebaseInstanceId.getInstance().getToken());
                     Log.d(TAG, "token: " + FirebaseInstanceId.getInstance().getToken());
-                    // mUserDatabaseReference.child("name").setValue(user.getEmail());
-                    onSignedInInitialize(user.getDisplayName());
+
+                    onSignedInInitialize();
 
 
-                    // loadingIndicator = findViewById(R.id.loading_indicator);
+                    new UpdateProgressBarTask().execute();
 
 
-                  // task11.start();
-                   new UpdateProgressBarTask().execute();
+
 
 
 
@@ -275,39 +235,10 @@ setProcessBar(View.INVISIBLE);
         };
 
 
-      /*  while(getmUser()==null){
-
-            Log.d(TAG,"USER S NULL");
-
-            try {
-                Thread.currentThread().sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }*/
-
-
-
-        // this is to show default fragment at start of the App.
-      /*  PaymentFragment galleryFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        Toast.makeText(this, galleryFragment.getTag(), Toast.LENGTH_SHORT).show();
-        Log.i("MYTAG", "" + galleryFragment.getId());
-        Log.i("MYTAG", "end" + galleryFragment.getTag());
-
-        fragmentTransaction.replace(R.id.content_main, galleryFragment, TAG);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();*/
-
-
     }
 
-    public void setProcessBar(int visibility){
-
-         loadingIndicator.setVisibility(visibility);
-
+    public void setProcessBar(int visibility) {
+        loadingIndicator.setVisibility(visibility);
     }
 
     @Override
@@ -333,14 +264,11 @@ setProcessBar(View.INVISIBLE);
         this.userTableTaskPath = userTableTaskPath;
     }
 
-    private void onSignedInInitialize(String username) {
-        // mUsername = username;
+    private void onSignedInInitialize() {
         attachDatabaseReadListener();
-
     }
 
     private void onSignedOutCleanup() {
-        // mUsername = ANONYMOUS;
         tasks.clear();
         DummyContent.ITEMS.clear();
         detachDatabaseReadListener();
@@ -370,16 +298,12 @@ setProcessBar(View.INVISIBLE);
 
                             if (dataSnapshot1.getKey().equals(TASKS)) {
                                 for (DataSnapshot dataSnapshot2 : dataSnapshot1.getChildren()) { // iterate all tasks
-                                    Task friendlyMessage = dataSnapshot2.getValue(Task.class);
-                                    friendlyMessage.setPostKey(dataSnapshot2.getKey());
-                                    friendlyMessage.setId("" + counter++);
+                                    Task taskMessage = dataSnapshot2.getValue(Task.class);
+                                    taskMessage.setPostKey(dataSnapshot2.getKey());
+                                    taskMessage.setId("" + counter++);
 
-                                    System.out.println("friendlyMessage  = " + friendlyMessage);
-                                    //  DummyContent.DummyItem dummyItem = new DummyContent.DummyItem("" + DummyContent.ITEMS.size()+1,friendlyMessage.getStatus(),friendlyMessage.getSummary());
-                                    //  dummyItem.setPostKey(friendlyMessage.getId());
-
-                                    //DummyContent.ITEMS.add(dummyItem);
-                                    tasks.add(friendlyMessage);
+                                    System.out.println("friendlyMessage  = " + taskMessage);
+                                    tasks.add(taskMessage);
                                 }
                             }
 
@@ -400,9 +324,8 @@ setProcessBar(View.INVISIBLE);
                 }
             };
 
-            //mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
-            mUserDatabaseReference.addValueEventListener(mTaskEventListener); // remove it
-            // mUserTaskDatabaseReference.addValueEventListener(mTaskEventListener); // remove it
+            mUserDatabaseReference.addValueEventListener(mTaskEventListener);
+
         }
     }
 
@@ -432,7 +355,6 @@ setProcessBar(View.INVISIBLE);
     private void detachDatabaseReadListener() {
         if (mTaskEventListener != null) {
             mUserDatabaseReference.removeEventListener(mTaskEventListener);
-            // mUserTaskDatabaseReference.removeEventListener(mTaskEventListener);
             mTaskEventListener = null;
         }
     }
@@ -470,6 +392,22 @@ setProcessBar(View.INVISIBLE);
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        setMenu(menu);
+        // Get the SearchView and set the searchable configuration
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+
+       // searchView.setSearchableInfo(
+         //       searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, MainActivity.class)));
+
+        MenuItem searchItem = menu.findItem(R.id.search);
+        searchItem.setVisible(false);
+
         return true;
     }
 
@@ -486,8 +424,13 @@ setProcessBar(View.INVISIBLE);
             return true;
         }
 
+
+
+
         return super.onOptionsItemSelected(item);
     }
+
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -497,8 +440,11 @@ setProcessBar(View.INVISIBLE);
 
         if (id == R.id.nav_payments) {
 
+            //hide search options for this fragment, this solution sucks!!
+            MenuItem searchAction = getMenu().findItem(R.id.search);
+            searchAction.setVisible(false);
 
-            if(getmUser()!=null) {
+            if (getmUser() != null) {
 
                 PaymentFragment paymentFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
                 FragmentManager fragmentManager = getSupportFragmentManager();
@@ -528,37 +474,13 @@ setProcessBar(View.INVISIBLE);
         } else if (id == R.id.nav_tasks) {
 
 
-            Collections.sort(tasks, new Comparator<Task>() {
-                @Override
-                public int compare(Task o1, Task o2) {
-                    if( o1.getStartDate() > o2.getStartDate()){
-                        return -1;
-                    }else if(o1.getStartDate() < o2.getStartDate()){
-                        return 1;
-                    }else {
-                        return 0;
-                    }
-                }
-            });
 
-            ItemFragment itemFragment = ItemFragment.newInstance(0, tasks);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            /*fragmentTransaction.replace(R.id.content_main, itemFragment, itemFragment.getTag());
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();*/
-
-            boolean fragmentPopped = fragmentManager.popBackStackImmediate (ITEM_FRAGMENT_TAG, 0);
-
-            if (!fragmentPopped){ //fragment not in back stack, create it.
-                fragmentTransaction.replace(R.id.content_main, itemFragment);
-                fragmentTransaction.addToBackStack(ITEM_FRAGMENT_TAG);
-                fragmentTransaction.commit();
-            }
+            showTasks(tasks);
 
 
         } else if (id == R.id.nav_send) {
+            MenuItem searchAction = getMenu().findItem(R.id.search);
+            searchAction.setVisible(false);
 
             // TODO : Change Email Address to Support email
             final String subject = "[PAYLAY]".concat("[ ").concat(getUserEmail()).concat(" ]");
@@ -570,6 +492,41 @@ setProcessBar(View.INVISIBLE);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void showTasks(List<Task> tasks) {
+
+        MenuItem searchAction = getMenu().findItem(R.id.search);
+        searchAction.setVisible(true);
+
+        Collections.sort(tasks, new Comparator<Task>() {
+            @Override
+            public int compare(Task o1, Task o2) {
+                if (o1.getStartDate() > o2.getStartDate()) {
+                    return -1;
+                } else if (o1.getStartDate() < o2.getStartDate()) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        ItemFragment itemFragment = ItemFragment.newInstance(0, tasks);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            /*fragmentTransaction.replace(R.id.content_main, itemFragment, itemFragment.getTag());
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();*/
+
+        boolean fragmentPopped = fragmentManager.popBackStackImmediate(ITEM_FRAGMENT_TAG, 0);
+
+        if (!fragmentPopped) { //fragment not in back stack, create it.
+            fragmentTransaction.replace(R.id.content_main, itemFragment);
+            fragmentTransaction.addToBackStack(ITEM_FRAGMENT_TAG);
+            fragmentTransaction.commit();
+        }
     }
 
     public User getmUser() {
@@ -597,23 +554,14 @@ setProcessBar(View.INVISIBLE);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-       // TaskFragment taskFragment = TaskFragment.newInstance(item.getStatus().toString(), item.getSummary(), item.getPostKey(), item.getComments(), getUserTableTaskPath());
-        TaskFragment taskFragment = TaskFragment.newInstance(item,getUserTableTaskPath());
-
-
-
-
-       /* fragmentTransaction.replace(R.id.content_main, taskFragment, "FRAG_TAG");
-
-        fragmentTransaction.addToBackStack(null);
-
-        fragmentTransaction.commit();*/
+        // TaskFragment taskFragment = TaskFragment.newInstance(item.getStatus().toString(), item.getSummary(), item.getPostKey(), item.getComments(), getUserTableTaskPath());
+        TaskFragment taskFragment = TaskFragment.newInstance(item, getUserTableTaskPath());
 
         // THIS IS CRUTIAL FOR BACK BUTTON FUNCTIONING, IT WILL AVOID ADDING TO STACK multiple times
         // we can also do this to above fragments if we face mem issue or back issue
-        boolean fragmentPopped = fragmentManager.popBackStackImmediate (TASK_FRAGMENT_TAG, 0);
+        boolean fragmentPopped = fragmentManager.popBackStackImmediate(TASK_FRAGMENT_TAG, 0);
 
-        if (!fragmentPopped){ //fragment not in back stack, create it.
+        if (!fragmentPopped) { //fragment not in back stack, create it.
             fragmentTransaction.replace(R.id.content_main, taskFragment);
             fragmentTransaction.addToBackStack(TASK_FRAGMENT_TAG);
             fragmentTransaction.commit();
@@ -626,8 +574,6 @@ setProcessBar(View.INVISIBLE);
     public void onFragmentInteraction(Uri uri) {
         Toast.makeText(this, "TASK FRAGMENT CLICKED", Toast.LENGTH_SHORT).show();
     }
-
-    //TODO : make DAO for handling database reference
 
 
     private class UpdateProgressBarTask extends AsyncTask<View, Integer, Integer> {
@@ -649,10 +595,8 @@ setProcessBar(View.INVISIBLE);
          */
         @Override
         protected Integer doInBackground(View... params) {
-            int i=10;
-            while(getmUser()==null && i>0){
-
-                Log.d(TAG,"USER S NULL " +i);
+            int i = 10;
+            while (getmUser() == null && i > 0) {
 
                 try {
                     Thread.sleep(1000);
@@ -660,7 +604,7 @@ setProcessBar(View.INVISIBLE);
                     e.printStackTrace();
                 }
 
-                i=i-1;
+                i = i - 1;
             }
 
 
@@ -670,7 +614,25 @@ setProcessBar(View.INVISIBLE);
         protected void onPostExecute(Integer result) {
             setProcessBar(result);
 
-            if(getmUser()!=null) {
+
+            if (getIntent().getExtras() != null && Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
+
+                String query = getIntent().getStringExtra(SearchManager.QUERY);
+                List<Task> filteredTasks = new ArrayList<>();
+                for(Task task : tasks){
+
+                    if(task.getName().toLowerCase().contains(query.toLowerCase())){
+                        filteredTasks.add(task);
+                    }
+                }
+
+                showTasks(filteredTasks);
+
+                return;
+
+            }
+
+            if (getmUser() != null) {
 
                 PaymentFragment paymentFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
                 FragmentManager fragmentManager = getSupportFragmentManager();
@@ -685,20 +647,14 @@ setProcessBar(View.INVISIBLE);
                     fragmentTransaction.commit();
                 }
 
-            }else {
+            } else {
                 TextView textView = (TextView) findViewById(R.id.empty_view);
                 textView.setText("No Internet Connection");
                 retryButton.setVisibility(View.VISIBLE);
             }
 
-
-
         }
-
 
     }
 
-
-
 }
-
