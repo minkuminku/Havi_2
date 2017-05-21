@@ -93,13 +93,7 @@ public class MainActivity extends AppCompatActivity
 
     private Menu menu;
 
-    public Menu getMenu() {
-        return menu;
-    }
 
-    public void setMenu(Menu menu) {
-        this.menu = menu;
-    }
 
     public String getUserTablePath() {
         return userTablePath;
@@ -115,21 +109,6 @@ public class MainActivity extends AppCompatActivity
         super.onRestart();
     }
 
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-
-        handleIntent(intent);
-    }
-
-    private void handleIntent(Intent intent) {
-
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-          Toast.makeText(getApplicationContext(),query,Toast.LENGTH_SHORT).show();
-
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -392,21 +371,6 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        setMenu(menu);
-        // Get the SearchView and set the searchable configuration
-        // Associate searchable configuration with the SearchView
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
-                (SearchView) menu.findItem(R.id.search).getActionView();
-
-       // searchView.setSearchableInfo(
-         //       searchManager.getSearchableInfo(getComponentName()));
-
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, MainActivity.class)));
-
-        MenuItem searchItem = menu.findItem(R.id.search);
-        searchItem.setVisible(false);
 
         return true;
     }
@@ -440,9 +404,6 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_payments) {
 
-            //hide search options for this fragment, this solution sucks!!
-            MenuItem searchAction = getMenu().findItem(R.id.search);
-            searchAction.setVisible(false);
 
             if (getmUser() != null) {
 
@@ -479,8 +440,6 @@ public class MainActivity extends AppCompatActivity
 
 
         } else if (id == R.id.nav_send) {
-            MenuItem searchAction = getMenu().findItem(R.id.search);
-            searchAction.setVisible(false);
 
             // TODO : Change Email Address to Support email
             final String subject = "[PAYLAY]".concat("[ ").concat(getUserEmail()).concat(" ]");
@@ -495,9 +454,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showTasks(List<Task> tasks) {
-
-        MenuItem searchAction = getMenu().findItem(R.id.search);
-        searchAction.setVisible(true);
 
         Collections.sort(tasks, new Comparator<Task>() {
             @Override
@@ -614,23 +570,6 @@ public class MainActivity extends AppCompatActivity
         protected void onPostExecute(Integer result) {
             setProcessBar(result);
 
-
-            if (getIntent().getExtras() != null && Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
-
-                String query = getIntent().getStringExtra(SearchManager.QUERY);
-                List<Task> filteredTasks = new ArrayList<>();
-                for(Task task : tasks){
-
-                    if(task.getName().toLowerCase().contains(query.toLowerCase())){
-                        filteredTasks.add(task);
-                    }
-                }
-
-                showTasks(filteredTasks);
-
-                return;
-
-            }
 
             if (getmUser() != null) {
 
