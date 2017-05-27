@@ -1,10 +1,6 @@
-package com.punbook.mayankgupta.havi.dummy;
-import com.google.firebase.database.Exclude;
+package com.punbook.mayankgupta.chocolatebox.dummy;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by mayankgupta on 12/03/17.

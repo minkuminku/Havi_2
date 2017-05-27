@@ -1,7 +1,6 @@
-package com.punbook.mayankgupta.havi.dummy;
+package com.punbook.mayankgupta.chocolatebox.dummy;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created by mayankgupta on 13/03/17.

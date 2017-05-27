@@ -1,4 +1,4 @@
-package com.punbook.mayankgupta.havi;
+package com.punbook.mayankgupta.chocolatebox;
 
 import org.junit.Test;
 

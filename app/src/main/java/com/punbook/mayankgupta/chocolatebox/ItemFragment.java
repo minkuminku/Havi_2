@@ -1,11 +1,9 @@
-package com.punbook.mayankgupta.havi;
+package com.punbook.mayankgupta.chocolatebox;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,13 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.punbook.mayankgupta.havi.dummy.DummyContent;
-import com.punbook.mayankgupta.havi.dummy.DummyContent.DummyItem;
-import com.punbook.mayankgupta.havi.dummy.Task;
+import com.punbook.mayankgupta.chocolatebox.dummy.Task;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,10 +25,8 @@ import java.util.List;
  */
 public class ItemFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String ARG_TASK_LIST = "task_list";
-    // TODO: Customize parameters
     private int mColumnCount = 1;
     private List<Task> tasks = new ArrayList<>();
     private OnListFragmentInteractionListener mListener;
@@ -45,8 +38,6 @@ public class ItemFragment extends Fragment {
     public ItemFragment() {
     }
 
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
     public static ItemFragment newInstance(int columnCount, List<Task> tasks) {
         ItemFragment fragment = new ItemFragment();
         Bundle args = new Bundle();
@@ -120,7 +111,6 @@ public class ItemFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onListFragmentInteraction(Task item);
     }
 }

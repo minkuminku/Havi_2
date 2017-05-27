@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Havi</string>
+    <string name="app_name">Chocolate Box</string>
     <string name="mobile_number_hint">10 digit mobile num.</string>
     <string name="pin_code_hint">113344</string>
     <string name="app_label">app_label</string>
@@ -12,7 +12,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">No Task Description</string>
-    <string name="task_name">Task Name kjehfekjf</string>
+    <string name="task_name">Task</string>
     <string name="payout_warning">"Make sure you double check above mobile number as payout will be made to this number by using mobile wallets like Mobiwik or Paytm."</string>
     <string name="search_title">Search</string>
 

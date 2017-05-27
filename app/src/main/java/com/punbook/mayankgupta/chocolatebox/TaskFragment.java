@@ -1,4 +1,4 @@
-package com.punbook.mayankgupta.havi;
+package com.punbook.mayankgupta.chocolatebox;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,8 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.FirebaseDatabase;
-import com.punbook.mayankgupta.havi.dummy.Status;
-import com.punbook.mayankgupta.havi.dummy.Task;
+import com.punbook.mayankgupta.chocolatebox.dummy.Status;
+import com.punbook.mayankgupta.chocolatebox.dummy.Task;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +40,7 @@ public class TaskFragment extends Fragment {
     private static final String ARG_PARAM3 = "param3";
     private static final String ARG_PARAM4 = "param4";
     private static final String ARG_PARAM5 = "param5";
+    private static final String ARG_PARAM6 = "param6";
 
     private static int counter = 0;
 
@@ -47,6 +48,7 @@ public class TaskFragment extends Fragment {
     private String mSummary;
     private String mPostKey;
     private String mComments;
+    private String mName;
     private String mTaskSubmitPath;
 
     private OnFragmentInteractionListener mListener;
@@ -55,18 +57,6 @@ public class TaskFragment extends Fragment {
         // Required empty public constructor
     }
 
-   /* public static TaskFragment newInstance(String param1, String param2, String param3, String param4, String param5) {
-        TaskFragment fragment = new TaskFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        args.putString(ARG_PARAM3, param3);
-        args.putString(ARG_PARAM4, param4);
-        args.putString(ARG_PARAM5, param5);
-
-        fragment.setArguments(args);
-        return fragment;
-    }*/
 
     public static TaskFragment newInstance(Task task, String taskSubmitPath) {
         TaskFragment fragment = new TaskFragment();
@@ -75,6 +65,7 @@ public class TaskFragment extends Fragment {
         args.putString(ARG_PARAM2, task.getSummary());
         args.putString(ARG_PARAM3, task.getPostKey());
         args.putString(ARG_PARAM4, task.getComments());
+        args.putString(ARG_PARAM6, task.getName());
         args.putString(ARG_PARAM5, taskSubmitPath);
 
         fragment.setArguments(args);
@@ -90,6 +81,7 @@ public class TaskFragment extends Fragment {
             mSummary = getArguments().getString(ARG_PARAM2);
             mPostKey = getArguments().getString(ARG_PARAM3);
             mComments = getArguments().getString(ARG_PARAM4);
+            mName = getArguments().getString(ARG_PARAM6);
             mTaskSubmitPath = getArguments().getString(ARG_PARAM5);
         }
 
@@ -103,6 +95,9 @@ public class TaskFragment extends Fragment {
 
         final TextView taskStatus = (TextView) view.findViewById(R.id.task_status);
         taskStatus.setText(mStatus);
+
+        final TextView taskName = (TextView) view.findViewById(R.id.taskName);
+        taskName.setText(mName);
 
         switch (Status.parse(mStatus)) {
             case ACTIVE:
@@ -157,7 +152,7 @@ public class TaskFragment extends Fragment {
 
                 TextView textView1 = (TextView) view.findViewById(R.id.task_comments);
                 String comments = textView1.getText().toString();
-                Toast.makeText(getContext(), "submiting " + mPostKey, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "submiting " + mPostKey, Toast.LENGTH_SHORT).show();
                 Map<String, Object> childUpdates = new HashMap<>();
                 childUpdates.put(SEPERATOR + mPostKey + SEPERATOR + Task.STATUS_KEY, Status.SUBMITTED);
                 childUpdates.put(SEPERATOR + mPostKey + SEPERATOR + Task.COMMENTS_KEY, comments);
@@ -188,12 +183,6 @@ public class TaskFragment extends Fragment {
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {

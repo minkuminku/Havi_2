@@ -1,4 +1,4 @@
-package com.punbook.mayankgupta.havi;
+package com.punbook.mayankgupta.chocolatebox;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -30,9 +30,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.punbook.mayankgupta.havi.dummy.DummyContent;
-import com.punbook.mayankgupta.havi.dummy.Task;
-import com.punbook.mayankgupta.havi.dummy.User;
+import com.punbook.mayankgupta.chocolatebox.dummy.DummyContent;
+import com.punbook.mayankgupta.chocolatebox.dummy.Task;
+import com.punbook.mayankgupta.chocolatebox.dummy.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity
                     System.out.println("user.getPhotoUrl() = " + user.getPhotoUrl());
 
 
-                    Toast.makeText(getApplicationContext(), "Signed in in activity", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "Signed in in activity", Toast.LENGTH_SHORT).show();
                     uniqueUserId = user.getUid();
 
                     setUserTablePath(DB_ROOT + SEPERATOR + uniqueUserId);
@@ -208,10 +208,10 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
                 // Sign-in succeeded, set up the UI
-                Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
             } else if (resultCode == RESULT_CANCELED) {
                 // Sign in was canceled by the user, finish the activity
-                Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
@@ -390,9 +390,9 @@ public class MainActivity extends AppCompatActivity
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-                Toast.makeText(this, paymentFragment.getTag(), Toast.LENGTH_SHORT).show();
-                Log.i("MYTAG", "" + paymentFragment.getId());
-                Log.i("MYTAG", "end" + paymentFragment.getTag());
+                //Toast.makeText(this, paymentFragment.getTag(), Toast.LENGTH_SHORT).show();
+                //Log.i("MYTAG", "" + paymentFragment.getId());
+                //Log.i("MYTAG", "end" + paymentFragment.getTag());
 
 
 
@@ -420,7 +420,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_send) {
 
             // TODO : Change Email Address to Support email
-            final String subject = "[PAYLAY]".concat("[ ").concat(getUserEmail()).concat(" ]");
+            final String subject = "[Chocolate Box]".concat("[ ").concat(getUserEmail()).concat(" ]");
 
             composeEmail(new String[]{"punbook@gmail.com"}, subject);
 
@@ -484,7 +484,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(Task item) {
-        Toast.makeText(this, item.getStatus().toString(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, item.getStatus().toString(), Toast.LENGTH_SHORT).show();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -506,7 +506,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-        Toast.makeText(this, "TASK FRAGMENT CLICKED", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "TASK FRAGMENT CLICKED", Toast.LENGTH_SHORT).show();
     }
 
 

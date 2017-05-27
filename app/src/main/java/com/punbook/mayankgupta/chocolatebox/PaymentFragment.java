@@ -1,4 +1,4 @@
-package com.punbook.mayankgupta.havi;
+package com.punbook.mayankgupta.chocolatebox;
 
 
 import android.os.Bundle;
@@ -17,12 +17,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.firebase.database.FirebaseDatabase;
-import com.punbook.mayankgupta.havi.dummy.User;
+import com.punbook.mayankgupta.chocolatebox.dummy.User;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.punbook.mayankgupta.havi.MainActivity.SEPERATOR;
+import static com.punbook.mayankgupta.chocolatebox.MainActivity.SEPERATOR;
 
 
 /**
@@ -31,8 +31,6 @@ import static com.punbook.mayankgupta.havi.MainActivity.SEPERATOR;
  * create an instance of this fragment.
  */
 public class PaymentFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String USER_PATH = "param1";
     private static final String GENDER = "param2";
     private static final String AGE = "param3";
@@ -45,7 +43,6 @@ public class PaymentFragment extends Fragment {
     private static final String MOBILE_NUMBER_KEY = "mobile";
     private static final String PIN_CODE_KEY = "pincode";
 
-    // TODO: Rename and change types of parameters
     private String mUserPath;
     private String mGender;
     private String mAge;
@@ -65,7 +62,6 @@ public class PaymentFragment extends Fragment {
      * @param user     Parameter 2.
      * @return A new instance of fragment PaymentFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static PaymentFragment newInstance(String userPath, User user) {
         PaymentFragment fragment = new PaymentFragment();
         Bundle args = new Bundle();
@@ -104,6 +100,8 @@ public class PaymentFragment extends Fragment {
 
         if(mGender.isEmpty()){
             updateButton.setText("Save");
+        }else {
+            updateButton.setText("Update");
         }
 
 
@@ -230,6 +228,12 @@ public class PaymentFragment extends Fragment {
                 } else {
                     Snackbar.make(view, "Could not update, complete all details!!", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                }
+
+                if(updateButton.getText().toString().equalsIgnoreCase("Save")){
+                    updateButton.setText("Saved");
+                }else {
+                    updateButton.setText("Updated");
                 }
 
             }
