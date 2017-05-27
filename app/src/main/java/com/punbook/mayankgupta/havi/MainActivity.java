@@ -1,8 +1,5 @@
 package com.punbook.mayankgupta.havi;
 
-import android.app.SearchManager;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -15,22 +12,18 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,7 +31,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.punbook.mayankgupta.havi.dummy.DummyContent;
-import com.punbook.mayankgupta.havi.dummy.Status;
 import com.punbook.mayankgupta.havi.dummy.Task;
 import com.punbook.mayankgupta.havi.dummy.User;
 
@@ -47,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -61,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     public static final String TASK_FRAGMENT_TAG = "TASK_FRAG_TAG";
     public static final String ITEM_FRAGMENT_TAG = "TASK_ITEM_FRAG_TAG";
     public static final String PAYMENT_FRAGMENT_TAG = "PAYMENT_FRAG_TAG";
+    private static final int REQUEST_INVITE = 333;
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUserDatabaseReference;
@@ -94,7 +88,6 @@ public class MainActivity extends AppCompatActivity
     private Menu menu;
 
 
-
     public String getUserTablePath() {
         return userTablePath;
     }
@@ -115,16 +108,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
 
-        System.out.println("###############ON CREATE MAIN ACTIVITY###############");
-
-        // Initialize Firebase components
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mTasksDatabaseReference = mFirebaseDatabase.getReference().child("tasks");
-
-
-
-
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -190,10 +176,6 @@ public class MainActivity extends AppCompatActivity
 
 
                     new UpdateProgressBarTask().execute();
-
-
-
-
 
 
                 } else {
@@ -389,11 +371,8 @@ public class MainActivity extends AppCompatActivity
         }
 
 
-
-
         return super.onOptionsItemSelected(item);
     }
-
 
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -433,7 +412,6 @@ public class MainActivity extends AppCompatActivity
 
 
         } else if (id == R.id.nav_tasks) {
-
 
 
             showTasks(tasks);
