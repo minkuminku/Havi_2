@@ -93,6 +93,8 @@ public class TaskFragment extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_task, container, false);
 
+
+
         final TextView taskStatus = (TextView) view.findViewById(R.id.task_status);
         taskStatus.setText(mStatus);
 
@@ -120,21 +122,19 @@ public class TaskFragment extends Fragment {
         TextView task_summary = (TextView) view.findViewById(R.id.task_summary);
         task_summary.setText(mSummary);
 
-        TextView task_comments = (TextView) view.findViewById(R.id.task_comments);
+         final EditText task_comments = (EditText) view.findViewById(R.id.task_comments);
         task_comments.setText(mComments);
 
         final Button submitButton = (Button) view.findViewById(R.id.task_submit_button);
 
-        final EditText editText = (EditText) view.findViewById(R.id.task_comments);
-
         if (Status.parse(mStatus) == Status.ACTIVE) {
             submitButton.setEnabled(true);
-            editText.setEnabled(true);
+            task_comments.setEnabled(true);
             submitButton.setVisibility(View.VISIBLE);
 
         } else {
             submitButton.setEnabled(false);
-            editText.setEnabled(false);
+            task_comments.setEnabled(false);
             submitButton.setVisibility(View.GONE);
         }
 
