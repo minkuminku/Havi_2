@@ -85,8 +85,6 @@ public class MainActivity extends AppCompatActivity
     private View loadingIndicator;
     private Button retryButton;
 
-    private Menu menu;
-
 
     public String getUserTablePath() {
         return userTablePath;
@@ -156,10 +154,6 @@ public class MainActivity extends AppCompatActivity
                     setUserEmail(user.getEmail());
                     userEmail.setText(getUserEmail());
 
-
-                    System.out.println("user.getPhotoUrl() = " + user.getPhotoUrl());
-
-
                     //Toast.makeText(getApplicationContext(), "Signed in in activity", Toast.LENGTH_SHORT).show();
                     uniqueUserId = user.getUid();
 
@@ -170,7 +164,6 @@ public class MainActivity extends AppCompatActivity
                     mUserDatabaseReference.child("username").setValue(user.getEmail());
 
                     mUserDatabaseReference.child("token").setValue(FirebaseInstanceId.getInstance().getToken());
-                    Log.d(TAG, "token: " + FirebaseInstanceId.getInstance().getToken());
 
                     onSignedInInitialize();
 
@@ -232,6 +225,12 @@ public class MainActivity extends AppCompatActivity
     private void onSignedOutCleanup() {
         tasks.clear();
         DummyContent.ITEMS.clear();
+        setmUser(null);
+
+        final FragmentManager fm = getSupportFragmentManager();
+        for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+            fm.popBackStack();
+        }
         detachDatabaseReadListener();
     }
 
@@ -262,8 +261,6 @@ public class MainActivity extends AppCompatActivity
                                     Task taskMessage = dataSnapshot2.getValue(Task.class);
                                     taskMessage.setPostKey(dataSnapshot2.getKey());
                                     taskMessage.setId("" + counter++);
-
-                                    System.out.println("friendlyMessage  = " + taskMessage);
                                     tasks.add(taskMessage);
                                 }
                             }
@@ -299,7 +296,6 @@ public class MainActivity extends AppCompatActivity
                 for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
 
                     Task welcomeTask = dataSnapshot1.getValue(Task.class);
-                    System.out.println("Welcome TASK $$$$$$$  -> " + welcomeTask);
                     mUserTaskDatabaseReference.push().setValue(welcomeTask);
 
                 }
@@ -550,7 +546,7 @@ public class MainActivity extends AppCompatActivity
 
 
             if (getmUser() != null) {
-
+                retryButton.setVisibility(View.GONE);
                 PaymentFragment paymentFragment = PaymentFragment.newInstance(getUserTablePath(), getmUser());
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

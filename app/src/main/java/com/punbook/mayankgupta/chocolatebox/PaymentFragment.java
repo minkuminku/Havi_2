@@ -230,9 +230,9 @@ public class PaymentFragment extends Fragment {
                             .setAction("Action", null).show();
                 }
 
-                if(updateButton.getText().toString().equalsIgnoreCase("Save")){
+                if(updateButton.getText().toString().equalsIgnoreCase("Save") && checkButtonStatus(updateButton)){
                     updateButton.setText("Saved");
-                }else {
+                }else if(checkButtonStatus(updateButton)){
                     updateButton.setText("Updated");
                 }
 
